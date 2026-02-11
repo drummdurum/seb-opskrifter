@@ -9,9 +9,9 @@
 <body class="bg-sand-light min-h-screen">
   <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
-      <div class="flex justify-between items-center">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
         <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
-        <div class="flex gap-4">
+        <div class="flex flex-wrap gap-4 items-center">
           <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
           <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/ny" class="btn-primary">+ Ny opskrift</a>
@@ -74,8 +74,10 @@
       <!-- Instructions -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-2xl font-semibold text-dark-brown mb-4">Fremgangsmåde</h2>
-        <div class="text-tree-brown whitespace-pre-wrap leading-relaxed">
-          <%= recipe.instructions %>
+        <div class="text-tree-brown leading-relaxed space-y-3">
+          <% recipe.instructions.split('.').filter(s => s.trim()).forEach((sentence, index) => { %>
+            <p><%= sentence.trim() %>.</p>
+          <% }) %>
         </div>
       </div>
 
