@@ -44,9 +44,7 @@ router.post('/', upload.single('billede'), async (req, res) => {
     // Log incoming data for debugging
     console.log('=== INCOMING REQUEST ===');
     console.log('Full req.body:', req.body);
-    console.log('fremgangsmåde value:', req.body.fremgangsmåde);
-    console.log('fremgangsmåde type:', typeof req.body.fremgangsmåde);
-    console.log('fremgangsmåde is array?', Array.isArray(req.body.fremgangsmåde));
+    console.log('instructions value:', req.body.instructions);
 
     // Validate required fields
     if (!req.body.titel || (typeof req.body.titel === 'string' && !req.body.titel.trim())) {
@@ -58,8 +56,8 @@ router.post('/', upload.single('billede'), async (req, res) => {
       throw new Error('Ingredienser er påkrævet - tilføj mindst én ingrediens');
     }
     
-    const fremgangsmådeText = req.body.fremgangsmåde ? (typeof req.body.fremgangsmåde === 'string' ? req.body.fremgangsmåde : req.body.fremgangsmåde.join('\n')) : '';
-    if (!fremgangsmådeText.trim()) {
+    const instructionsText = req.body.instructions || '';
+    if (!instructionsText.trim()) {
       throw new Error('Fremgangsmåde er påkrævet - tilføj mindst ét trin');
     }
 
@@ -68,7 +66,7 @@ router.post('/', upload.single('billede'), async (req, res) => {
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser.filter(i => i && i.trim())
         : ingredienserText.split('\n').filter(i => i.trim()),
-      fremgangsmåde: fremgangsmådeText.trim(),
+      instructions: instructionsText.trim(),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],
@@ -110,8 +108,8 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
       throw new Error('Ingredienser er påkrævet - tilføj mindst én ingrediens');
     }
     
-    const fremgangsmådeText = req.body.fremgangsmåde ? (typeof req.body.fremgangsmåde === 'string' ? req.body.fremgangsmåde : req.body.fremgangsmåde.join('\n')) : '';
-    if (!fremgangsmådeText.trim()) {
+    const instructionsText = req.body.instructions || '';
+    if (!instructionsText.trim()) {
       throw new Error('Fremgangsmåde er påkrævet - tilføj mindst ét trin');
     }
 
@@ -120,7 +118,7 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser.filter(i => i && i.trim())
         : ingredienserText.split('\n').filter(i => i.trim()),
-      fremgangsmåde: fremgangsmådeText.trim(),
+      instructions: instructionsText.trim(),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],

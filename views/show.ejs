@@ -74,16 +74,9 @@
       <!-- Instructions -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <h2 class="text-2xl font-semibold text-dark-brown mb-4">Fremgangsmåde</h2>
-        <ol class="space-y-4">
-          <% recipe.fremgangsmåde.forEach((step, index) => { %>
-            <li class="flex gap-3">
-              <span class="flex-shrink-0 w-8 h-8 bg-red-accent text-white rounded-full flex items-center justify-center font-semibold">
-                <%= index + 1 %>
-              </span>
-              <span class="text-tree-brown pt-1"><%= step %></span>
-            </li>
-          <% }) %>
-        </ol>
+        <div class="text-tree-brown whitespace-pre-wrap leading-relaxed">
+          <%= recipe.instructions %>
+        </div>
       </div>
 
       <!-- Serving suggestions -->

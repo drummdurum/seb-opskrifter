@@ -59,17 +59,17 @@
 
         <!-- Fremgangsmåde -->
         <div class="mb-6">
-          <label for="fremgangsmåde" class="block text-dark-brown font-semibold mb-2">
+          <label for="instructions" class="block text-dark-brown font-semibold mb-2">
             Fremgangsmåde <span class="text-red-accent">*</span>
             <span class="text-sm font-normal text-tree-brown">(ét trin pr. linje)</span>
           </label>
           <textarea 
-            id="fremgangsmåde" 
-            name="fremgangsmåde" 
+            id="instructions" 
+            name="instructions" 
             rows="10"
             required
             class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
-          ><%= recipe.fremgangsmåde.join('\n') %></textarea>
+          ><%= recipe.instructions %></textarea>
         </div>
 
         <!-- Antal portioner -->

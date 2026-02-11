@@ -17,7 +17,7 @@ const recipeSchema = new mongoose.Schema({
       message: 'Hver ingrediens må ikke overstige 50 tegn'
     }
   },
-  fremgangsmåde: {
+  instructions: {
     type: String,
     required: [true, 'Fremgangsmåde er påkrævet']
   },

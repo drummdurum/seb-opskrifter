@@ -38,7 +38,7 @@
           id="jsonImport" 
           class="w-full px-3 sm:px-4 py-2 border-2 border-warm-beige rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent font-mono text-xs sm:text-sm"
           rows="5"
-          placeholder='{"titel": "Min opskrift", "ingredienser": ["2 løg"], "fremgangsmåde": ["Skær"], "how_many_servings": 4}'
+          placeholder='{"titel": "Min opskrift", "ingredienser": ["2 løg"], "instructions": "Skær løgene...", "how_many_servings": 4}'
         ></textarea>
         <button 
           type="button" 
@@ -85,13 +85,13 @@
 
         <!-- Fremgangsmåde -->
         <div class="mb-6">
-          <label for="fremgangsmåde" class="block text-dark-brown font-semibold mb-2">
+          <label for="instructions" class="block text-dark-brown font-semibold mb-2">
             Fremgangsmåde <span class="text-red-accent">*</span>
             <span class="text-sm font-normal text-tree-brown">(ét trin pr. linje)</span>
           </label>
           <textarea 
-            id="fremgangsmåde" 
-            name="fremgangsmåde" 
+            id="instructions" 
+            name="instructions" 
             rows="10"
             required
             class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
@@ -198,10 +198,10 @@
           console.warn('⚠️ ingredienser is not an array or missing:', recipe.ingredienser);
         }
 
-        // Populate fremgangsmåde (string -> textarea)
-        if (recipe.fremgangsmåde) {
-          document.getElementById('fremgangsmåde').value = recipe.fremgangsmåde;
-          console.log('✅ fremgangsmåde set to:', recipe.fremgangsmåde);
+        // Populate instructions (string -> textarea)
+        if (recipe.instructions) {
+          document.getElementById('instructions').value = recipe.instructions;
+          console.log('✅ instructions set to:', recipe.instructions);
         }
 
         // Populate how_many_servings
