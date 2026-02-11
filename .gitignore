@@ -4,4 +4,3 @@ uploads/
 *.log
 .DS_Store
 dist/
-public/css/output.css
