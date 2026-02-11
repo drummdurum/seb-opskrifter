@@ -6,14 +6,14 @@
   <title><%= title %> | Opskrifter</title>
   <link rel="stylesheet" href="/css/output.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-md mb-8">
+<body class="bg-sand-light min-h-screen">
+  <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
         <div class="flex gap-4">
-          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
-          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/ny" class="btn-primary">+ Ny opskrift</a>
         </div>
       </div>
@@ -22,20 +22,39 @@
 
   <main class="container mx-auto px-4 pb-12">
     <div class="max-w-3xl mx-auto">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= title %></h1>
+      <h1 class="text-3xl font-bold text-dark-brown mb-6"><%= title %></h1>
 
       <% if (typeof error !== 'undefined') { %>
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <div class="bg-red-100 border-2 border-red-accent text-red-accent px-4 py-3 rounded mb-6">
           <%= error %>
         </div>
       <% } %>
+
+      <!-- JSON Import Section -->
+      <div class="bg-warm-taupe rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-bold text-dark-brown mb-4">📋 Importer fra JSON</h2>
+        <p class="text-sm text-tree-brown mb-3">Klistre et JSON-objekt med opskriftsdata her:</p>
+        <textarea 
+          id="jsonImport" 
+          class="w-full px-4 py-2 border-2 border-warm-beige rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent font-mono text-sm"
+          rows="6"
+          placeholder='{"titel": "Min opskrift", "ingredienser": ["2 løg"], "fremgangsmåde": ["Skær løggene"], "how_many_servings": 4, "tags": ["test"], "til_servering": []}'
+        ></textarea>
+        <button 
+          type="button" 
+          id="importBtn" 
+          class="mt-3 btn-primary"
+        >
+          📥 Importer JSON
+        </button>
+      </div>
 
       <form action="/recipes" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md p-6">
         
         <!-- Titel -->
         <div class="mb-6">
-          <label for="titel" class="block text-gray-700 font-semibold mb-2">
-            Titel <span class="text-red-500">*</span>
+          <label for="titel" class="block text-dark-brown font-semibold mb-2">
+            Titel <span class="text-red-accent">*</span>
           </label>
           <input 
             type="text" 
@@ -43,46 +62,46 @@
             name="titel" 
             required
             maxlength="100"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
             placeholder="F.eks. Tomatsuppe med suppenudler"
           >
         </div>
 
         <!-- Ingredienser -->
         <div class="mb-6">
-          <label for="ingredienser" class="block text-gray-700 font-semibold mb-2">
-            Ingredienser <span class="text-red-500">*</span>
-            <span class="text-sm font-normal text-gray-500">(én pr. linje)</span>
+          <label for="ingredienser" class="block text-dark-brown font-semibold mb-2">
+            Ingredienser <span class="text-red-accent">*</span>
+            <span class="text-sm font-normal text-tree-brown">(én pr. linje)</span>
           </label>
           <textarea 
             id="ingredienser" 
             name="ingredienser" 
             rows="8"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
             placeholder="2 løg, finthakkede&#10;2 fed hvidløg, finthakkede&#10;1 porre, i tynde ringe"
           ></textarea>
         </div>
 
         <!-- Fremgangsmåde -->
         <div class="mb-6">
-          <label for="fremgangsmåde" class="block text-gray-700 font-semibold mb-2">
-            Fremgangsmåde <span class="text-red-500">*</span>
-            <span class="text-sm font-normal text-gray-500">(ét trin pr. linje)</span>
+          <label for="fremgangsmåde" class="block text-dark-brown font-semibold mb-2">
+            Fremgangsmåde <span class="text-red-accent">*</span>
+            <span class="text-sm font-normal text-tree-brown">(ét trin pr. linje)</span>
           </label>
           <textarea 
             id="fremgangsmåde" 
             name="fremgangsmåde" 
             rows="10"
             required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
             placeholder="Varm olie op i en gryde...&#10;Tilsæt kartofler..."
           ></textarea>
         </div>
 
         <!-- Antal portioner -->
         <div class="mb-6">
-          <label for="how_many_servings" class="block text-gray-700 font-semibold mb-2">
+          <label for="how_many_servings" class="block text-dark-brown font-semibold mb-2">
             Antal portioner
           </label>
           <input 
@@ -91,50 +110,50 @@
             name="how_many_servings" 
             min="1"
             value="4"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
           >
         </div>
 
         <!-- Tags -->
         <div class="mb-6">
-          <label for="tags" class="block text-gray-700 font-semibold mb-2">
-            Tags <span class="text-sm font-normal text-gray-500">(kommasepareret)</span>
+          <label for="tags" class="block text-dark-brown font-semibold mb-2">
+            Tags <span class="text-sm font-normal text-tree-brown">(kommasepareret)</span>
           </label>
           <input 
             type="text" 
             id="tags" 
             name="tags" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="pasta, soup, vegan, dessert"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
+            placeholder="pasta, suppe, vegansk, dessert"
           >
-          <p class="text-sm text-gray-500 mt-1">F.eks: pasta, soup, vegan, dessert, gryde, salat</p>
+          <p class="text-sm text-tree-brown mt-1">F.eks: pasta, suppe, vegansk, dessert, gryde, salat</p>
         </div>
 
         <!-- Til servering -->
         <div class="mb-6">
-          <label for="til_servering" class="block text-gray-700 font-semibold mb-2">
-            Til servering <span class="text-sm font-normal text-gray-500">(én pr. linje)</span>
+          <label for="til_servering" class="block text-dark-brown font-semibold mb-2">
+            Til servering <span class="text-sm font-normal text-tree-brown">(én pr. linje)</span>
           </label>
           <textarea 
             id="til_servering" 
             name="til_servering" 
             rows="3"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
             placeholder="1 dl creme fraiche 18%&#10;Frisk timian"
           ></textarea>
         </div>
 
         <!-- Billede -->
         <div class="mb-6">
-          <label for="billede" class="block text-gray-700 font-semibold mb-2">
-            Billede <span class="text-sm font-normal text-gray-500">(valgfrit, max 5MB)</span>
+          <label for="billede" class="block text-dark-brown font-semibold mb-2">
+            Billede <span class="text-sm font-normal text-tree-brown">(valgfrit, max 5MB)</span>
           </label>
           <input 
             type="file" 
             id="billede" 
             name="billede" 
             accept="image/*"
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
           >
         </div>
 
@@ -147,10 +166,70 @@
     </div>
   </main>
 
-  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+  <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
     <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
   </footer>
 
   <script src="/js/main.js"></script>
+  <script>
+    // JSON Import Handler
+    document.getElementById('importBtn').addEventListener('click', function() {
+      const jsonText = document.getElementById('jsonImport').value.trim();
+      
+      if (!jsonText) {
+        alert('Indsæt venligst JSON-data');
+        return;
+      }
+
+      try {
+        const recipe = JSON.parse(jsonText);
+        
+        // Populate titel
+        if (recipe.titel) {
+          document.getElementById('titel').value = recipe.titel;
+        }
+
+        // Populate ingredienser (array -> textarea)
+        if (recipe.ingredienser && Array.isArray(recipe.ingredienser)) {
+          document.getElementById('ingredienser').value = recipe.ingredienser.join('\n');
+        }
+
+        // Populate fremgangsmåde (array -> textarea)
+        if (recipe.fremgangsmåde && Array.isArray(recipe.fremgangsmåde)) {
+          document.getElementById('fremgangsmåde').value = recipe.fremgangsmåde.join('\n');
+        }
+
+        // Populate how_many_servings
+        if (recipe.how_many_servings) {
+          document.getElementById('how_many_servings').value = recipe.how_many_servings;
+        }
+
+        // Populate tags
+        if (recipe.tags && Array.isArray(recipe.tags)) {
+          document.getElementById('tags').value = recipe.tags.join(', ');
+        }
+
+        // Populate til_servering (array -> textarea)
+        if (recipe.til_servering && Array.isArray(recipe.til_servering)) {
+          document.getElementById('til_servering').value = recipe.til_servering.join('\n');
+        }
+
+        alert('✅ JSON importeret succesfuldt! Formularfelterne er udfyldt.');
+        
+        // Scroll to form
+        document.querySelector('form').scrollIntoView({ behavior: 'smooth' });
+      } catch (error) {
+        alert('❌ Fejl ved JSON parsing:\n' + error.message);
+        console.error('JSON Import Error:', error);
+      }
+    });
+
+    // Allow Enter in textarea without triggering form submit
+    document.getElementById('jsonImport').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && e.ctrlKey) {
+        document.getElementById('importBtn').click();
+      }
+    });
+  </script>
 </body>
 </html>

@@ -6,14 +6,14 @@
   <title><%= title %> | Opskrifter</title>
   <link rel="stylesheet" href="/css/output.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-md mb-8">
+<body class="bg-sand-light min-h-screen">
+  <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
         <div class="flex gap-4">
-          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
-          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/ny" class="btn-primary">+ Ny opskrift</a>
         </div>
       </div>
@@ -22,11 +22,11 @@
 
   <main class="container mx-auto px-4 pb-12">
     <div class="max-w-3xl mx-auto">
-      <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= title %></h1>
+      <h1 class="text-3xl font-bold text-dark-brown mb-6"><%= title %></h1>
 
       <div class="bg-white rounded-lg shadow-md p-8">
         <% if (tags.length === 0) { %>
-          <p class="text-gray-600 text-center">Ingen tags fundet endnu. Tilføj tags til dine opskrifter!</p>
+          <p class="text-tree-brown text-center">Ingen tags fundet endnu. Tilføj tags til dine opskrifter!</p>
         <% } else { %>
           <div class="flex flex-wrap gap-3">
             <% tags.forEach(tag => { %>
@@ -40,7 +40,7 @@
     </div>
   </main>
 
-  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+  <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
     <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
   </footer>
 

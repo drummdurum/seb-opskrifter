@@ -6,14 +6,14 @@
   <title><%= title %> | Opskrifter</title>
   <link rel="stylesheet" href="/css/output.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-md mb-8">
+<body class="bg-sand-light min-h-screen">
+  <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
       <div class="flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
         <div class="flex gap-4">
-          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
-          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/ny" class="btn-primary">+ Ny opskrift</a>
         </div>
       </div>
@@ -32,9 +32,9 @@
       <% } %>
 
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4"><%= recipe.titel %></h1>
+        <h1 class="text-3xl md:text-4xl font-bold text-dark-brown mb-4"><%= recipe.titel %></h1>
         
-        <div class="flex items-center gap-4 text-gray-600 mb-4">
+        <div class="flex items-center gap-4 text-tree-brown mb-4">
           <span>👥 <%= recipe.how_many_servings %> portioner</span>
           <span>📅 <%= new Date(recipe.createdAt).toLocaleDateString('da-DK') %></span>
         </div>
@@ -59,13 +59,13 @@
       <!-- Ingredients -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-semibold text-gray-800">Ingredienser</h2>
+          <h2 class="text-2xl font-semibold text-dark-brown">Ingredienser</h2>
           <button id="resetIngredients" class="btn-secondary text-sm">↻ Reset</button>
         </div>
         <ul class="space-y-2">
           <% recipe.ingredienser.forEach(ingredient => { %>
-            <li class="ingredient-item flex items-start gap-2 p-2 hover:bg-gray-50 rounded">
-              <span class="text-gray-700"><%= ingredient %></span>
+            <li class="ingredient-item flex items-start gap-2 p-2 hover:bg-sand-light rounded">
+              <span class="text-tree-brown"><%= ingredient %></span>
             </li>
           <% }) %>
         </ul>
@@ -73,14 +73,14 @@
 
       <!-- Instructions -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Fremgangsmåde</h2>
+        <h2 class="text-2xl font-semibold text-dark-brown mb-4">Fremgangsmåde</h2>
         <ol class="space-y-4">
           <% recipe.fremgangsmåde.forEach((step, index) => { %>
             <li class="flex gap-3">
-              <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+              <span class="flex-shrink-0 w-8 h-8 bg-red-accent text-white rounded-full flex items-center justify-center font-semibold">
                 <%= index + 1 %>
               </span>
-              <span class="text-gray-700 pt-1"><%= step %></span>
+              <span class="text-tree-brown pt-1"><%= step %></span>
             </li>
           <% }) %>
         </ol>
@@ -89,12 +89,12 @@
       <!-- Serving suggestions -->
       <% if (recipe.til_servering && recipe.til_servering.length > 0) { %>
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Til servering</h2>
+          <h2 class="text-2xl font-semibold text-dark-brown mb-4">Til servering</h2>
           <ul class="space-y-2">
             <% recipe.til_servering.forEach(item => { %>
               <li class="flex items-start gap-2">
-                <span class="text-blue-600">•</span>
-                <span class="text-gray-700"><%= item %></span>
+                <span class="text-red-accent">•</span>
+                <span class="text-tree-brown"><%= item %></span>
               </li>
             <% }) %>
           </ul>

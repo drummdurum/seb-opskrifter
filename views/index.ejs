@@ -6,26 +6,54 @@
   <title><%= title %> | Opskrifter</title>
   <link rel="stylesheet" href="/css/output.css">
 </head>
-<body class="bg-gray-50 min-h-screen">
-  <nav class="bg-white shadow-md mb-8">
+<body class="bg-sand-light min-h-screen">
+  <nav class="bg-warm-beige shadow-md mb-0 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
       <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
         <div class="flex gap-4">
-          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
-          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/ny" class="btn-primary">+ Ny opskrift</a>
         </div>
       </div>
     </div>
   </nav>
 
+  <!-- Hero Section with Video -->
+  <section class="hero-section hero-overlay">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-8">
+        <div>
+          <h1 class="text-4xl md:text-5xl font-bold text-dark-brown mb-4">Velkommen til Opskrifter</h1>
+          <p class="text-lg text-tree-brown mb-6">Opdag, gem og del dine yndlingsopskrifter. En simpel og smukt database for madentusiaster.</p>
+          <div class="flex gap-4">
+            <a href="/ny" class="btn-primary text-lg px-6 py-3">+ Tilføj opskrift</a>
+            <a href="/#recipes" class="px-6 py-3 border-2 border-red-accent text-red-accent font-semibold rounded hover:bg-red-accent hover:text-white transition-colors duration-200">Gennemse opskrifter</a>
+          </div>
+        </div>
+        <div class="rounded-lg overflow-hidden shadow-lg">
+          <video 
+            width="100%" 
+            height="auto" 
+            controls 
+            poster="/pictures/bru-no-cook-1375788_1920.jpg"
+            class="w-full h-64 md:h-96 object-cover"
+          >
+            <source src="/videos/200157-912127896_medium.mp4" type="video/mp4">
+            Din browser understøtter ikke videoafspilning.
+          </video>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <main class="container mx-auto px-4 pb-12">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= title %></h1>
+    <div class="mb-12 mt-12">
+      <h2 class="text-3xl font-bold text-dark-brown mb-6">Opskrifter</h2>
       
       <!-- Search Bar -->
-      <div class="max-w-2xl">
+      <div class="max-w-2xl mb-8">
         <form action="/" method="GET" class="flex gap-2">
           <input 
             type="text" 
@@ -33,60 +61,62 @@
             id="searchInput"
             placeholder="Søg efter opskrifter eller tags..." 
             value="<%= searchQuery || '' %>"
-            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="flex-1 px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
           >
           <button type="submit" class="btn-primary">Søg</button>
         </form>
       </div>
     </div>
 
-    <% if (recipes.length === 0) { %>
-      <div class="bg-white rounded-lg shadow-md p-8 text-center">
-        <p class="text-gray-600 text-lg mb-4">Ingen opskrifter fundet</p>
-        <a href="/ny" class="btn-primary">Tilføj din første opskrift</a>
-      </div>
-    <% } else { %>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <% recipes.forEach(recipe => { %>
-          <div class="recipe-card">
-            <% if (recipe.billede) { %>
-              <img 
-                src="/uploads/<%= recipe.billede %>" 
-                alt="<%= recipe.titel %>"
-                class="w-full h-48 object-cover"
-              >
-            <% } else { %>
-              <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
-                <span class="text-6xl">🍽️</span>
-              </div>
-            <% } %>
-            
-            <div class="p-4">
-              <h2 class="text-xl font-semibold text-gray-800 mb-2">
-                <a href="/recipe/<%= recipe._id %>" class="hover:text-blue-600">
-                  <%= recipe.titel %>
-                </a>
-              </h2>
-              
-              <div class="flex items-center gap-2 text-sm text-gray-600 mb-3">
-                <span>👥 <%= recipe.how_many_servings %> portioner</span>
-              </div>
-
-              <% if (recipe.tags && recipe.tags.length > 0) { %>
-                <div class="flex flex-wrap">
-                  <% recipe.tags.forEach(tag => { %>
-                    <a href="/tag/<%= tag %>" class="tag"><%= tag %></a>
-                  <% }) %>
+    <div id="recipes">
+      <% if (recipes.length === 0) { %>
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+          <p class="text-tree-brown text-lg mb-4">Ingen opskrifter fundet</p>
+          <a href="/ny" class="btn-primary">Tilføj din første opskrift</a>
+        </div>
+      <% } else { %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <% recipes.forEach(recipe => { %>
+            <div class="recipe-card">
+              <% if (recipe.billede) { %>
+                <img 
+                  src="/uploads/<%= recipe.billede %>" 
+                  alt="<%= recipe.titel %>"
+                  class="w-full h-48 object-cover"
+                >
+              <% } else { %>
+                <div class="w-full h-48 bg-warm-taupe flex items-center justify-center">
+                  <span class="text-6xl">🍽️</span>
                 </div>
               <% } %>
+              
+              <div class="p-4">
+                <h2 class="text-xl font-semibold text-dark-brown mb-2">
+                  <a href="/recipe/<%= recipe._id %>" class="hover:text-red-accent transition-colors duration-200">
+                    <%= recipe.titel %>
+                  </a>
+                </h2>
+                
+                <div class="flex items-center gap-2 text-sm text-tree-brown mb-3">
+                  <span>👥 <%= recipe.how_many_servings %> portioner</span>
+                </div>
+
+                <% if (recipe.tags && recipe.tags.length > 0) { %>
+                  <div class="flex flex-wrap">
+                    <% recipe.tags.forEach(tag => { %>
+                      <a href="/tag/<%= tag %>" class="tag"><%= tag %></a>
+                    <% }) %>
+                  </div>
+                <% } %>
+              </div>
             </div>
-          </div>
-        <% }) %>
-      </div>
-    <% } %>
+          <% }) %>
+        </div>
+      <% } %>
+    </div>
   </main>
 
-  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+  <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
     <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
   </footer>
 
