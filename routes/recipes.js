@@ -41,14 +41,25 @@ const upload = multer({
 // Create new recipe
 router.post('/', upload.single('billede'), async (req, res) => {
   try {
+    // Validate required fields
+    if (!req.body.titel) {
+      throw new Error('Titel er påkrævet');
+    }
+    if (!req.body.ingredienser) {
+      throw new Error('Ingredienser er påkrævet');
+    }
+    if (!req.body.fremgangsmåde) {
+      throw new Error('Fremgangsmåde er påkrævet');
+    }
+
     const recipeData = {
       titel: req.body.titel,
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser 
-        : req.body.ingredienser.split('\n').filter(i => i.trim()),
+        : (req.body.ingredienser ? req.body.ingredienser.split('\n').filter(i => i.trim()) : []),
       fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
         ? req.body.fremgangsmåde
-        : req.body.fremgangsmåde.split('\n').filter(i => i.trim()),
+        : (req.body.fremgangsmåde ? req.body.fremgangsmåde.split('\n').filter(i => i.trim()) : []),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : req.body.tags.split(',').map(t => t.trim()).filter(t => t)) : [],
@@ -80,14 +91,25 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
       return res.status(404).send('Opskrift ikke fundet');
     }
 
+    // Validate required fields
+    if (!req.body.titel) {
+      throw new Error('Titel er påkrævet');
+    }
+    if (!req.body.ingredienser) {
+      throw new Error('Ingredienser er påkrævet');
+    }
+    if (!req.body.fremgangsmåde) {
+      throw new Error('Fremgangsmåde er påkrævet');
+    }
+
     const updateData = {
       titel: req.body.titel,
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser 
-        : req.body.ingredienser.split('\n').filter(i => i.trim()),
+        : (req.body.ingredienser ? req.body.ingredienser.split('\n').filter(i => i.trim()) : []),
       fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
         ? req.body.fremgangsmåde
-        : req.body.fremgangsmåde.split('\n').filter(i => i.trim()),
+        : (req.body.fremgangsmåde ? req.body.fremgangsmåde.split('\n').filter(i => i.trim()) : []),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : req.body.tags.split(',').map(t => t.trim()).filter(t => t)) : [],
@@ -113,7 +135,7 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
     res.redirect(`/recipe/${req.params.id}`);
   } catch (error) {
     console.error(error);
-    res.status(400).send('Fejl ved opdatering af opskrift');
+    res.status(400).send('Fejl ved opdatering af opskrift: ' + error.message);
   }
 });
 
