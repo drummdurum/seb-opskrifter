@@ -41,32 +41,43 @@ const upload = multer({
 // Create new recipe
 router.post('/', upload.single('billede'), async (req, res) => {
   try {
+    // Log incoming data for debugging
+    console.log('Modtaget data:', {
+      titel: req.body.titel,
+      ingredienser: req.body.ingredienser ? req.body.ingredienser.substring(0, 50) : 'undefined',
+      fremgangsmåde: req.body.fremgangsmåde ? req.body.fremgangsmåde.substring(0, 50) : 'undefined'
+    });
+
     // Validate required fields
-    if (!req.body.titel) {
+    if (!req.body.titel || (typeof req.body.titel === 'string' && !req.body.titel.trim())) {
       throw new Error('Titel er påkrævet');
     }
-    if (!req.body.ingredienser) {
-      throw new Error('Ingredienser er påkrævet');
+    
+    const ingredienserText = req.body.ingredienser ? (typeof req.body.ingredienser === 'string' ? req.body.ingredienser : req.body.ingredienser.join('\n')) : '';
+    if (!ingredienserText.trim()) {
+      throw new Error('Ingredienser er påkrævet - tilføj mindst én ingrediens');
     }
-    if (!req.body.fremgangsmåde) {
-      throw new Error('Fremgangsmåde er påkrævet');
+    
+    const fremgangsmådeText = req.body.fremgangsmåde ? (typeof req.body.fremgangsmåde === 'string' ? req.body.fremgangsmåde : req.body.fremgangsmåde.join('\n')) : '';
+    if (!fremgangsmådeText.trim()) {
+      throw new Error('Fremgangsmåde er påkrævet - tilføj mindst ét trin');
     }
 
     const recipeData = {
-      titel: req.body.titel,
+      titel: req.body.titel.trim(),
       ingredienser: Array.isArray(req.body.ingredienser) 
-        ? req.body.ingredienser 
-        : (req.body.ingredienser ? req.body.ingredienser.split('\n').filter(i => i.trim()) : []),
+        ? req.body.ingredienser.filter(i => i && i.trim())
+        : ingredienserText.split('\n').filter(i => i.trim()),
       fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
-        ? req.body.fremgangsmåde
-        : (req.body.fremgangsmåde ? req.body.fremgangsmåde.split('\n').filter(i => i.trim()) : []),
+        ? req.body.fremgangsmåde.filter(i => i && i.trim())
+        : fremgangsmådeText.split('\n').filter(i => i.trim()),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
-        : req.body.tags.split(',').map(t => t.trim()).filter(t => t)) : [],
-      how_many_servings: req.body.how_many_servings || 4,
+        : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],
+      how_many_servings: parseInt(req.body.how_many_servings) || 4,
       til_servering: req.body.til_servering ? (Array.isArray(req.body.til_servering)
-        ? req.body.til_servering
-        : req.body.til_servering.split('\n').filter(i => i.trim())) : [],
+        ? req.body.til_servering.filter(i => i && i.trim())
+        : (typeof req.body.til_servering === 'string' ? req.body.til_servering.split('\n').filter(i => i.trim()) : [])) : [],
       billede: req.file ? req.file.filename : null
     };
 
@@ -75,7 +86,7 @@ router.post('/', upload.single('billede'), async (req, res) => {
     
     res.redirect(`/recipe/${recipe._id}`);
   } catch (error) {
-    console.error(error);
+    console.error('Recipe creation error:', error);
     res.status(400).render('new', { 
       title: 'Ny Opskrift', 
       error: error.message 
@@ -91,32 +102,36 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
       return res.status(404).send('Opskrift ikke fundet');
     }
 
-    // Validate required fields
-    if (!req.body.titel) {
+    // Validate required fields with better error messages
+    if (!req.body.titel || (typeof req.body.titel === 'string' && !req.body.titel.trim())) {
       throw new Error('Titel er påkrævet');
     }
-    if (!req.body.ingredienser) {
-      throw new Error('Ingredienser er påkrævet');
+    
+    const ingredienserText = req.body.ingredienser ? (typeof req.body.ingredienser === 'string' ? req.body.ingredienser : req.body.ingredienser.join('\n')) : '';
+    if (!ingredienserText.trim()) {
+      throw new Error('Ingredienser er påkrævet - tilføj mindst én ingrediens');
     }
-    if (!req.body.fremgangsmåde) {
-      throw new Error('Fremgangsmåde er påkrævet');
+    
+    const fremgangsmådeText = req.body.fremgangsmåde ? (typeof req.body.fremgangsmåde === 'string' ? req.body.fremgangsmåde : req.body.fremgangsmåde.join('\n')) : '';
+    if (!fremgangsmådeText.trim()) {
+      throw new Error('Fremgangsmåde er påkrævet - tilføj mindst ét trin');
     }
 
     const updateData = {
-      titel: req.body.titel,
+      titel: req.body.titel.trim(),
       ingredienser: Array.isArray(req.body.ingredienser) 
-        ? req.body.ingredienser 
-        : (req.body.ingredienser ? req.body.ingredienser.split('\n').filter(i => i.trim()) : []),
+        ? req.body.ingredienser.filter(i => i && i.trim())
+        : ingredienserText.split('\n').filter(i => i.trim()),
       fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
-        ? req.body.fremgangsmåde
-        : (req.body.fremgangsmåde ? req.body.fremgangsmåde.split('\n').filter(i => i.trim()) : []),
+        ? req.body.fremgangsmåde.filter(i => i && i.trim())
+        : fremgangsmådeText.split('\n').filter(i => i.trim()),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
-        : req.body.tags.split(',').map(t => t.trim()).filter(t => t)) : [],
-      how_many_servings: req.body.how_many_servings || 4,
+        : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],
+      how_many_servings: parseInt(req.body.how_many_servings) || 4,
       til_servering: req.body.til_servering ? (Array.isArray(req.body.til_servering)
-        ? req.body.til_servering
-        : req.body.til_servering.split('\n').filter(i => i.trim())) : []
+        ? req.body.til_servering.filter(i => i && i.trim())
+        : (typeof req.body.til_servering === 'string' ? req.body.til_servering.split('\n').filter(i => i.trim()) : [])) : []
     };
 
     // Handle new image upload

@@ -25,20 +25,20 @@
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center py-8">
         <div>
-          <h1 class="text-4xl md:text-5xl font-bold text-dark-brown mb-4">Velkommen til Opskrifter</h1>
-          <p class="text-lg text-tree-brown mb-6">Opdag, gem og del dine yndlingsopskrifter. En simpel og smukt database for madentusiaster.</p>
-          <div class="flex gap-4">
-            <a href="/ny" class="btn-primary text-lg px-6 py-3">+ Tilføj opskrift</a>
-            <a href="/#recipes" class="px-6 py-3 border-2 border-red-accent text-red-accent font-semibold rounded hover:bg-red-accent hover:text-white transition-colors duration-200">Gennemse opskrifter</a>
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-bold text-dark-brown mb-4">Velkommen til Opskrifter</h1>
+          <p class="text-base sm:text-lg text-tree-brown mb-6">Opdag, gem og del dine yndlingsopskrifter. En simpel og smukt database for madentusiaster.</p>
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <a href="/ny" class="btn-primary text-center py-2 px-4 sm:text-lg sm:px-6 sm:py-3">+ Tilføj opskrift</a>
+            <a href="/#recipes" class="px-4 py-2 sm:px-6 sm:py-3 border-2 border-red-accent text-red-accent font-semibold rounded hover:bg-red-accent hover:text-white transition-colors duration-200 text-center text-sm sm:text-base">Gennemse opskrifter</a>
           </div>
         </div>
-        <div class="rounded-lg overflow-hidden shadow-lg">
+        <div class="rounded-lg overflow-hidden shadow-lg w-full">
           <video 
             width="100%" 
             height="auto" 
             controls 
             poster="/pictures/bru-no-cook-1375788_1920.jpg"
-            class="w-full h-64 md:h-96 object-cover"
+            class="w-full h-48 sm:h-64 md:h-96 object-cover"
           >
             <source src="/videos/200157-912127896_medium.mp4" type="video/mp4">
             Din browser understøtter ikke videoafspilning.
@@ -49,21 +49,21 @@
   </section>
 
   <main class="container mx-auto px-4 pb-12">
-    <div class="mb-12 mt-12">
-      <h2 class="text-3xl font-bold text-dark-brown mb-6">Opskrifter</h2>
+    <div class="mb-12 mt-8 sm:mt-12">
+      <h2 class="text-2xl sm:text-3xl font-bold text-dark-brown mb-4 sm:mb-6">Opskrifter</h2>
       
       <!-- Search Bar -->
-      <div class="max-w-2xl mb-8">
-        <form action="/" method="GET" class="flex gap-2">
+      <div class="max-w-2xl mb-6 sm:mb-8">
+        <form action="/" method="GET" class="flex flex-col sm:flex-row gap-2">
           <input 
             type="text" 
             name="search" 
             id="searchInput"
             placeholder="Søg efter opskrifter eller tags..." 
             value="<%= searchQuery || '' %>"
-            class="flex-1 px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent"
+            class="flex-1 px-3 sm:px-4 py-2 border-2 border-warm-taupe rounded-lg focus:outline-none focus:ring-2 focus:ring-red-accent text-sm sm:text-base"
           >
-          <button type="submit" class="btn-primary">Søg</button>
+          <button type="submit" class="btn-primary px-4 py-2 text-sm sm:text-base whitespace-nowrap">Søg</button>
         </form>
       </div>
     </div>

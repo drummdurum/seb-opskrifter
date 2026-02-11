@@ -28,15 +28,31 @@
 }
 
 .tag {
-  @apply inline-block bg-sand-light text-red-accent text-sm px-3 py-1 rounded-full mr-2 mb-2 hover:bg-warm-taupe transition-colors;
+  @apply inline-block bg-sand-light text-red-accent text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full mr-2 mb-2 hover:bg-warm-taupe transition-colors;
 }
 
 /* Hero section */
 .hero-section {
-  @apply bg-warm-beige py-16;
+  @apply bg-warm-beige py-8 sm:py-12 md:py-16;
 }
 
 .hero-overlay {
   @apply relative;
   background: linear-gradient(rgba(74, 55, 40, 0.05), rgba(74, 55, 40, 0.05));
+}
+
+/* Form inputs - mobile adjustments */
+input[type="text"],
+input[type="number"],
+input[type="file"],
+textarea,
+select {
+  @apply text-base; /* Prevents zoom on iOS */
+}
+
+/* Responsive container */
+@media (max-width: 640px) {
+  .container {
+    @apply px-3;
+  }
 }

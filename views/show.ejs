@@ -47,11 +47,11 @@
           </div>
         <% } %>
 
-        <div class="flex gap-2">
-          <a href="/recipe/<%= recipe._id %>/edit" class="btn-secondary">✏️ Rediger</a>
+        <div class="flex flex-col sm:flex-row gap-2 flex-wrap">
+          <a href="/recipe/<%= recipe._id %>/edit" class="btn-secondary text-sm sm:text-base py-2 px-4">✏️ Rediger</a>
           <form action="/recipes/<%= recipe._id %>?_method=DELETE" method="POST" 
-                onsubmit="return confirmDelete('<%= recipe.titel %>')" class="inline">
-            <button type="submit" class="btn-danger">🗑️ Slet</button>
+                onsubmit="return confirmDelete('<%= recipe.titel %>')" class="inline w-full sm:w-auto">
+            <button type="submit" class="btn-danger w-full sm:w-auto text-sm sm:text-base py-2 px-4">🗑️ Slet</button>
           </form>
         </div>
       </div>
@@ -103,8 +103,8 @@
     </div>
   </main>
 
-  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
-    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
+    <p class="text-sm sm:text-base">&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
   </footer>
 
   <script src="/js/main.js"></script>

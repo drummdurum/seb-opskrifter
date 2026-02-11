@@ -9,12 +9,12 @@
 <body class="bg-sand-light min-h-screen">
   <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
     <div class="container mx-auto px-4 py-4">
-      <div class="flex justify-between items-center">
-        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
-        <div class="flex gap-4">
-          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
-          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
-          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a href="/" class="text-xl sm:text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
+        <div class="flex flex-wrap gap-2 sm:gap-4 justify-center">
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200 text-sm sm:text-base">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200 text-sm sm:text-base">Tags</a>
+          <a href="/ny" class="btn-primary text-sm sm:text-base">+ Ny opskrift</a>
         </div>
       </div>
     </div>
@@ -25,7 +25,7 @@
   </main>
 
   <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
-    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+    <p class="text-sm sm:text-base">&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
   </footer>
 
   <script src="/js/main.js"></script>
