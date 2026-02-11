@@ -68,9 +68,7 @@ router.post('/', upload.single('billede'), async (req, res) => {
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser.filter(i => i && i.trim())
         : ingredienserText.split('\n').filter(i => i.trim()),
-      fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
-        ? req.body.fremgangsmåde.filter(i => i && i.trim())
-        : fremgangsmådeText.split('\n').filter(i => i.trim()),
+      fremgangsmåde: fremgangsmådeText.trim(),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],
@@ -122,9 +120,7 @@ router.put('/:id', upload.single('billede'), async (req, res) => {
       ingredienser: Array.isArray(req.body.ingredienser) 
         ? req.body.ingredienser.filter(i => i && i.trim())
         : ingredienserText.split('\n').filter(i => i.trim()),
-      fremgangsmåde: Array.isArray(req.body.fremgangsmåde)
-        ? req.body.fremgangsmåde.filter(i => i && i.trim())
-        : fremgangsmådeText.split('\n').filter(i => i.trim()),
+      fremgangsmåde: fremgangsmådeText.trim(),
       tags: req.body.tags ? (Array.isArray(req.body.tags) 
         ? req.body.tags 
         : (typeof req.body.tags === 'string' ? req.body.tags.split(',').map(t => t.trim()).filter(t => t) : [])) : [],

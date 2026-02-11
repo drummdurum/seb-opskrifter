@@ -198,14 +198,10 @@
           console.warn('⚠️ ingredienser is not an array or missing:', recipe.ingredienser);
         }
 
-        // Populate fremgangsmåde (array -> textarea)
-        if (recipe.fremgangsmåde && Array.isArray(recipe.fremgangsmåde)) {
-          const fremgangsmådeText = recipe.fremgangsmåde.join('\n');
-          document.getElementById('fremgangsmåde').value = fremgangsmådeText;
-          console.log('✅ fremgangsmåde set to:', fremgangsmådeText);
-          console.log('textarea element value:', document.getElementById('fremgangsmåde').value);
-        } else {
-          console.warn('⚠️ fremgangsmåde is not an array or missing:', recipe.fremgangsmåde);
+        // Populate fremgangsmåde (string -> textarea)
+        if (recipe.fremgangsmåde) {
+          document.getElementById('fremgangsmåde').value = recipe.fremgangsmåde;
+          console.log('✅ fremgangsmåde set to:', recipe.fremgangsmåde);
         }
 
         // Populate how_many_servings

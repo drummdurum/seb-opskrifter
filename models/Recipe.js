@@ -18,7 +18,7 @@ const recipeSchema = new mongoose.Schema({
     }
   },
   fremgangsmåde: {
-    type: [String],
+    type: String,
     required: [true, 'Fremgangsmåde er påkrævet']
   },
   tags: {
