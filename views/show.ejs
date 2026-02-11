@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-md mb-8">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <div class="flex gap-4">
+          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
+          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 pb-12">
+    <div class="max-w-4xl mx-auto">
+      <!-- Recipe Header -->
+      <% if (recipe.billede) { %>
+        <img 
+          src="/uploads/<%= recipe.billede %>" 
+          alt="<%= recipe.titel %>"
+          class="w-full h-64 md:h-96 object-cover rounded-lg shadow-lg mb-6"
+        >
+      <% } %>
+
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4"><%= recipe.titel %></h1>
+        
+        <div class="flex items-center gap-4 text-gray-600 mb-4">
+          <span>👥 <%= recipe.how_many_servings %> portioner</span>
+          <span>📅 <%= new Date(recipe.createdAt).toLocaleDateString('da-DK') %></span>
+        </div>
+
+        <% if (recipe.tags && recipe.tags.length > 0) { %>
+          <div class="mb-4">
+            <% recipe.tags.forEach(tag => { %>
+              <a href="/tag/<%= tag %>" class="tag"><%= tag %></a>
+            <% }) %>
+          </div>
+        <% } %>
+
+        <div class="flex gap-2">
+          <a href="/recipe/<%= recipe._id %>/edit" class="btn-secondary">✏️ Rediger</a>
+          <form action="/recipes/<%= recipe._id %>?_method=DELETE" method="POST" 
+                onsubmit="return confirmDelete('<%= recipe.titel %>')" class="inline">
+            <button type="submit" class="btn-danger">🗑️ Slet</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Ingredients -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-2xl font-semibold text-gray-800">Ingredienser</h2>
+          <button id="resetIngredients" class="btn-secondary text-sm">↻ Reset</button>
+        </div>
+        <ul class="space-y-2">
+          <% recipe.ingredienser.forEach(ingredient => { %>
+            <li class="ingredient-item flex items-start gap-2 p-2 hover:bg-gray-50 rounded">
+              <span class="text-gray-700"><%= ingredient %></span>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+
+      <!-- Instructions -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Fremgangsmåde</h2>
+        <ol class="space-y-4">
+          <% recipe.fremgangsmåde.forEach((step, index) => { %>
+            <li class="flex gap-3">
+              <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-semibold">
+                <%= index + 1 %>
+              </span>
+              <span class="text-gray-700 pt-1"><%= step %></span>
+            </li>
+          <% }) %>
+        </ol>
+      </div>
+
+      <!-- Serving suggestions -->
+      <% if (recipe.til_servering && recipe.til_servering.length > 0) { %>
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Til servering</h2>
+          <ul class="space-y-2">
+            <% recipe.til_servering.forEach(item => { %>
+              <li class="flex items-start gap-2">
+                <span class="text-blue-600">•</span>
+                <span class="text-gray-700"><%= item %></span>
+              </li>
+            <% }) %>
+          </ul>
+        </div>
+      <% } %>
+    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

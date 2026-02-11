@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-md mb-8">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex justify-between items-center">
+        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <div class="flex gap-4">
+          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
+          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 pb-12">
+    <div class="max-w-3xl mx-auto">
+      <h1 class="text-3xl font-bold text-gray-800 mb-6"><%= title %></h1>
+
+      <form action="/recipes/<%= recipe._id %>?_method=PUT" method="POST" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md p-6">
+        
+        <!-- Titel -->
+        <div class="mb-6">
+          <label for="titel" class="block text-gray-700 font-semibold mb-2">
+            Titel <span class="text-red-500">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="titel" 
+            name="titel" 
+            value="<%= recipe.titel %>"
+            required
+            maxlength="100"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Ingredienser -->
+        <div class="mb-6">
+          <label for="ingredienser" class="block text-gray-700 font-semibold mb-2">
+            Ingredienser <span class="text-red-500">*</span>
+            <span class="text-sm font-normal text-gray-500">(én pr. linje)</span>
+          </label>
+          <textarea 
+            id="ingredienser" 
+            name="ingredienser" 
+            rows="8"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ><%= recipe.ingredienser.join('\n') %></textarea>
+        </div>
+
+        <!-- Fremgangsmåde -->
+        <div class="mb-6">
+          <label for="fremgangsmåde" class="block text-gray-700 font-semibold mb-2">
+            Fremgangsmåde <span class="text-red-500">*</span>
+            <span class="text-sm font-normal text-gray-500">(ét trin pr. linje)</span>
+          </label>
+          <textarea 
+            id="fremgangsmåde" 
+            name="fremgangsmåde" 
+            rows="10"
+            required
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ><%= recipe.fremgangsmåde.join('\n') %></textarea>
+        </div>
+
+        <!-- Antal portioner -->
+        <div class="mb-6">
+          <label for="how_many_servings" class="block text-gray-700 font-semibold mb-2">
+            Antal portioner
+          </label>
+          <input 
+            type="number" 
+            id="how_many_servings" 
+            name="how_many_servings" 
+            min="1"
+            value="<%= recipe.how_many_servings %>"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Tags -->
+        <div class="mb-6">
+          <label for="tags" class="block text-gray-700 font-semibold mb-2">
+            Tags <span class="text-sm font-normal text-gray-500">(kommasepareret)</span>
+          </label>
+          <input 
+            type="text" 
+            id="tags" 
+            name="tags" 
+            value="<%= recipe.tags.join(', ') %>"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Til servering -->
+        <div class="mb-6">
+          <label for="til_servering" class="block text-gray-700 font-semibold mb-2">
+            Til servering <span class="text-sm font-normal text-gray-500">(én pr. linje)</span>
+          </label>
+          <textarea 
+            id="til_servering" 
+            name="til_servering" 
+            rows="3"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          ><%= recipe.til_servering.join('\n') %></textarea>
+        </div>
+
+        <!-- Current Image -->
+        <% if (recipe.billede) { %>
+          <div class="mb-6">
+            <label class="block text-gray-700 font-semibold mb-2">Nuværende billede</label>
+            <img 
+              src="/uploads/<%= recipe.billede %>" 
+              alt="<%= recipe.titel %>"
+              class="w-64 h-48 object-cover rounded-lg"
+            >
+          </div>
+        <% } %>
+
+        <!-- New Image -->
+        <div class="mb-6">
+          <label for="billede" class="block text-gray-700 font-semibold mb-2">
+            <%= recipe.billede ? 'Skift billede' : 'Tilføj billede' %>
+            <span class="text-sm font-normal text-gray-500">(valgfrit, max 5MB)</span>
+          </label>
+          <input 
+            type="file" 
+            id="billede" 
+            name="billede" 
+            accept="image/*"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+        </div>
+
+        <!-- Buttons -->
+        <div class="flex gap-4">
+          <button type="submit" class="btn-primary">💾 Gem ændringer</button>
+          <a href="/recipe/<%= recipe._id %>" class="btn-secondary">Annuller</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>

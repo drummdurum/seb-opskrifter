@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <nav class="bg-white shadow-md mb-8">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="/" class="text-2xl font-bold text-blue-600">🍳 Opskrifter</a>
+        <div class="flex gap-4">
+          <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
+          <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
+          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 pb-12">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 mb-4"><%= title %></h1>
+      
+      <!-- Search Bar -->
+      <div class="max-w-2xl">
+        <form action="/" method="GET" class="flex gap-2">
+          <input 
+            type="text" 
+            name="search" 
+            id="searchInput"
+            placeholder="Søg efter opskrifter eller tags..." 
+            value="<%= searchQuery || '' %>"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+          <button type="submit" class="btn-primary">Søg</button>
+        </form>
+      </div>
+    </div>
+
+    <% if (recipes.length === 0) { %>
+      <div class="bg-white rounded-lg shadow-md p-8 text-center">
+        <p class="text-gray-600 text-lg mb-4">Ingen opskrifter fundet</p>
+        <a href="/ny" class="btn-primary">Tilføj din første opskrift</a>
+      </div>
+    <% } else { %>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <% recipes.forEach(recipe => { %>
+          <div class="recipe-card">
+            <% if (recipe.billede) { %>
+              <img 
+                src="/uploads/<%= recipe.billede %>" 
+                alt="<%= recipe.titel %>"
+                class="w-full h-48 object-cover"
+              >
+            <% } else { %>
+              <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+                <span class="text-6xl">🍽️</span>
+              </div>
+            <% } %>
+            
+            <div class="p-4">
+              <h2 class="text-xl font-semibold text-gray-800 mb-2">
+                <a href="/recipe/<%= recipe._id %>" class="hover:text-blue-600">
+                  <%= recipe.titel %>
+                </a>
+              </h2>
+              
+              <div class="flex items-center gap-2 text-sm text-gray-600 mb-3">
+                <span>👥 <%= recipe.how_many_servings %> portioner</span>
+              </div>
+
+              <% if (recipe.tags && recipe.tags.length > 0) { %>
+                <div class="flex flex-wrap">
+                  <% recipe.tags.forEach(tag => { %>
+                    <a href="/tag/<%= tag %>" class="tag"><%= tag %></a>
+                  <% }) %>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <footer class="bg-gray-800 text-white text-center py-4 mt-12">
+    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  </footer>
+
+  <script src="/js/main.js"></script>
+</body>
+</html>
