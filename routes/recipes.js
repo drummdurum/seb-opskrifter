@@ -42,11 +42,11 @@ const upload = multer({
 router.post('/', upload.single('billede'), async (req, res) => {
   try {
     // Log incoming data for debugging
-    console.log('Modtaget data:', {
-      titel: req.body.titel,
-      ingredienser: req.body.ingredienser ? req.body.ingredienser.substring(0, 50) : 'undefined',
-      fremgangsmåde: req.body.fremgangsmåde ? req.body.fremgangsmåde.substring(0, 50) : 'undefined'
-    });
+    console.log('=== INCOMING REQUEST ===');
+    console.log('Full req.body:', req.body);
+    console.log('fremgangsmåde value:', req.body.fremgangsmåde);
+    console.log('fremgangsmåde type:', typeof req.body.fremgangsmåde);
+    console.log('fremgangsmåde is array?', Array.isArray(req.body.fremgangsmåde));
 
     // Validate required fields
     if (!req.body.titel || (typeof req.body.titel === 'string' && !req.body.titel.trim())) {
