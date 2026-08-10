@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-sand-light min-h-screen">
+  <nav class="bg-warm-beige shadow-md mb-8 border-b-4 border-red-accent">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="/" class="text-2xl font-bold text-dark-brown">🍳 Opskrifter</a>
+        <div class="flex flex-wrap gap-4 items-center">
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
+          <a href="/taellere" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tællere</a>
+          <a href="/mail" aria-current="page" class="font-semibold text-red-accent">Mail</a>
+          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 pb-12">
+    <!-- Topbar -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-dark-brown">Mail</h1>
+        <p class="text-tree-brown">Agenten samler det vigtige og sorterer resten.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <% if (!oauthConfigured) { %>
+          <span class="text-sm text-red-accent">Tilføj Gmail-nøgler i .env</span>
+        <% } else if (!connected) { %>
+          <a href="/api/auth/google" class="btn-primary">Forbind Gmail</a>
+        <% } else { %>
+          <a href="/api/auth/google" class="btn-secondary">Forny adgang</a>
+          <button id="sync-btn" class="btn-primary">Synkronisér</button>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Fejlbanner -->
+    <% if (error) {
+      const errorMessages = {
+        invalid_oauth_state: 'Login mislykkedes (ugyldig sikkerhedskode). Prøv igen.',
+        oauth_failed: 'Google-login mislykkedes. Prøv igen.',
+        oauth_not_configured: 'Gmail er ikke konfigureret korrekt.'
+      };
+    %>
+      <div class="bg-red-accent/10 border border-red-accent text-red-accent-dark rounded-lg px-4 py-3 mb-6">
+        <%= errorMessages[error] || 'Der opstod en fejl.' %>
+      </div>
+    <% } %>
+
+    <!-- Statistik -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div class="bg-white rounded-lg shadow-md p-5 flex items-center justify-between">
+        <div><div class="text-sm text-tree-brown">Nyhedsbreve</div><div class="text-3xl font-bold text-dark-brown"><%= stats.newsletter %></div></div>
+        <span class="text-2xl">📰</span>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-5 flex items-center justify-between">
+        <div><div class="text-sm text-tree-brown">Kvitteringer</div><div class="text-3xl font-bold text-dark-brown"><%= stats.receipt %></div></div>
+        <span class="text-2xl">🧾</span>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-5 flex items-center justify-between">
+        <div><div class="text-sm text-tree-brown">Andet</div><div class="text-3xl font-bold text-dark-brown"><%= stats.other %></div></div>
+        <span class="text-2xl">✉️</span>
+      </div>
+    </div>
+
+    <!-- Kategori-filtre -->
+    <div class="flex flex-wrap gap-2 mb-6">
+      <% const filters = [
+        { key: 'all', href: '/mail', label: 'Indbakke', count: stats.all },
+        { key: 'newsletter', href: '/mail?category=newsletter', label: 'Nyhedsbreve', count: stats.newsletter },
+        { key: 'receipt', href: '/mail?category=receipt', label: 'Kvitteringer', count: stats.receipt },
+        { key: 'other', href: '/mail?category=other', label: 'Andet', count: stats.other }
+      ]; %>
+      <% filters.forEach(function(f) { %>
+        <a href="<%= f.href %>" class="px-3 py-1.5 rounded-full text-sm font-semibold transition-colors <%= activeCategory === f.key ? 'bg-red-accent text-white' : 'bg-warm-beige text-dark-brown hover:bg-warm-taupe' %>">
+          <%= f.label %> <span class="opacity-70">(<%= f.count %>)</span>
+        </a>
+      <% }); %>
+    </div>
+
+    <!-- Mail-liste -->
+    <% if (!connected) { %>
+      <div class="bg-white rounded-lg shadow-md p-10 text-center text-tree-brown">
+        <div class="text-4xl mb-3">📬</div>
+        <h2 class="text-xl font-bold text-dark-brown mb-1">Forbind din Gmail</h2>
+        <p>Forbind for at hente og sortere dine ulæste mails. Adgangen kan læse, sende svar og arkivere — aldrig slette.</p>
+      </div>
+    <% } else if (emails.length === 0) { %>
+      <div class="bg-white rounded-lg shadow-md p-10 text-center text-tree-brown">
+        <div class="text-4xl mb-3">🌿</div>
+        <h2 class="text-xl font-bold text-dark-brown mb-1">Her er dejligt stille</h2>
+        <p>Klik "Synkronisér" for at hente dine ulæste mails.</p>
+      </div>
+    <% } else { %>
+      <div class="space-y-3">
+        <% emails.forEach(function(email) {
+          const badgeColors = {
+            newsletter: 'bg-olive-muted text-white',
+            receipt: 'bg-oat-brown text-white',
+            other: 'bg-tree-brown text-white'
+          };
+          const d = new Date(email.received_at);
+          const now = new Date();
+          const dateStr = d.toDateString() === now.toDateString()
+            ? d.toLocaleTimeString('da-DK', { hour: '2-digit', minute: '2-digit' })
+            : d.toLocaleDateString('da-DK', { day: 'numeric', month: 'short' });
+        %>
+          <article class="mail-card bg-white rounded-lg shadow-md p-4" data-gmail-id="<%= email.gmail_id %>">
+            <div class="flex items-start gap-4">
+              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-warm-beige text-dark-brown font-bold grid place-items-center">
+                <%= (email.sender_name || '?').charAt(0).toUpperCase() %>
+              </div>
+              <div class="min-w-0 flex-1">
+                <div class="flex items-center justify-between gap-2">
+                  <div class="font-semibold text-dark-brown truncate"><%= email.sender_name %></div>
+                  <time class="text-xs text-tree-brown flex-shrink-0"><%= dateStr %></time>
+                </div>
+                <div class="text-xs text-tree-brown truncate"><%= email.sender_email %></div>
+                <div class="mt-1 font-medium text-dark-brown truncate"><%= email.subject %></div>
+                <div class="text-sm text-tree-brown"><%= email.summary %></div>
+
+                <div class="flex flex-wrap items-center gap-2 mt-2">
+                  <span class="text-xs font-bold px-2 py-0.5 rounded-full <%= badgeColors[email.category] %>"><%= labels[email.category] %></span>
+                  <span class="text-xs text-olive-muted"><%= Math.round((email.confidence || 0) * 100) %>% sikker</span>
+
+                  <% if (email.category === 'newsletter' && (email.unsubscribe_url || email.unsubscribed_at)) { %>
+                    <% if (email.unsubscribed_at) { %>
+                      <span class="text-xs font-semibold text-olive-muted">Afmeldt ✓</span>
+                    <% } else { %>
+                      <button
+                        class="js-unsub text-xs font-semibold px-2 py-1 rounded-full border border-warm-taupe text-red-accent hover:bg-sand-light"
+                        data-oneclick="<%= email.unsubscribe_one_click ? '1' : '0' %>"
+                        data-url="<%= email.unsubscribe_url || '' %>">
+                        <%= email.unsubscribe_one_click ? 'Afmeld automatisk' : 'Afmeld' %>
+                      </button>
+                    <% } %>
+                  <% } %>
+
+                  <% if (email.category === 'other') { %>
+                    <button class="js-reply text-xs font-semibold px-2 py-1 rounded-full border border-warm-taupe text-dark-brown hover:bg-sand-light">Foreslå svar</button>
+                  <% } %>
+                </div>
+
+                <!-- Svar-boks (fyldes af mail.js) -->
+                <div class="js-reply-box mt-3 hidden"></div>
+                <div class="js-status text-xs mt-2"></div>
+              </div>
+            </div>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+
+  <footer class="bg-dark-brown text-sand-light text-center py-4 mt-12 border-t-4 border-red-accent">
+    <p class="text-sm">&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  </footer>
+
+  <script src="/js/mail.js"></script>
+</body>
+</html>

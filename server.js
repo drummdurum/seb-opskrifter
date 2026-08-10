@@ -29,9 +29,13 @@ app.set('views', path.join(__dirname, 'views'));
 // Routes
 const pageRoutes = require('./routes/pages');
 const recipeRoutes = require('./routes/recipes');
+const counterRoutes = require('./routes/counters');
+const mailRoutes = require('./routes/mail');
 
 app.use('/', pageRoutes);
 app.use('/recipes', recipeRoutes);
+app.use('/taellere', counterRoutes);
+app.use('/', mailRoutes);
 
 // 404 Handler
 app.use((req, res) => {

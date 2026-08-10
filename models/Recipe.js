@@ -12,9 +12,9 @@ const recipeSchema = new mongoose.Schema({
     required: [true, 'Ingredienser er påkrævet'],
     validate: {
       validator: function(arr) {
-        return arr && arr.length > 0 && arr.every(ing => ing.length <= 50);
+        return arr && arr.length > 0 && arr.every(ing => ing.length <= 80);
       },
-      message: 'Hver ingrediens må ikke overstige 50 tegn'
+      message: 'Hver ingrediens må ikke overstige 80 tegn'
     }
   },
   instructions: {

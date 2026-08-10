@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-sand-light min-h-screen flex flex-col">
+  <nav class="bg-warm-beige shadow-md border-b-4 border-red-accent">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="/" class="text-2xl font-bold text-dark-brown">Opskrifter</a>
+        <div class="flex flex-wrap justify-center gap-4 items-center">
+          <a href="/" class="text-dark-brown hover:text-red-accent transition-colors">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors">Tags</a>
+          <a href="/taellere" aria-current="page" class="font-semibold text-red-accent">Tællere</a>
+          <a href="/mail" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Mail</a>
+          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 py-8 sm:py-12 flex-1">
+    <header class="max-w-3xl mb-8">
+      <p class="text-sm font-semibold uppercase text-olive-muted mb-2">Strikkeprojekter</p>
+      <h1 class="text-3xl sm:text-4xl font-bold text-dark-brown mb-3">Omgangstællere</h1>
+      <p class="text-tree-brown">Hold styr på omgangen på hvert projekt. Tryk på den store knap, hver gang en omgang er færdig.</p>
+    </header>
+
+    <section class="bg-white border-l-4 border-olive-muted p-4 sm:p-5 mb-8 max-w-3xl" aria-labelledby="new-counter-heading">
+      <h2 id="new-counter-heading" class="text-lg font-bold text-dark-brown mb-3">Nyt projekt</h2>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <p class="text-red-accent font-semibold mb-3" role="alert"><%= error %></p>
+      <% } %>
+      <form action="/taellere" method="POST" class="flex flex-col sm:flex-row gap-3">
+        <label for="counter-name" class="sr-only">Projektets navn</label>
+        <input id="counter-name" name="name" type="text" maxlength="80" required placeholder="F.eks. blå sweater" class="flex-1 px-4 py-3 border-2 border-warm-taupe rounded focus:outline-none focus:ring-2 focus:ring-olive-muted">
+        <button type="submit" class="btn-secondary whitespace-nowrap">Opret projekt</button>
+      </form>
+    </section>
+
+    <% if (counters.length === 0) { %>
+      <div class="max-w-3xl border-2 border-dashed border-warm-taupe p-8 text-center">
+        <h2 class="text-xl font-bold text-dark-brown mb-2">Ingen tællere endnu</h2>
+        <p class="text-tree-brown">Opret dit første strikkeprojekt ovenfor.</p>
+      </div>
+    <% } else { %>
+      <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" aria-label="Dine tællere">
+        <% counters.forEach(counter => { %>
+          <article class="counter-card bg-white border border-warm-taupe shadow-md p-5" data-counter-id="<%= counter._id %>">
+            <div class="flex items-start justify-between gap-3 mb-5">
+              <h2 class="text-xl font-bold text-dark-brown break-words min-w-0"><a href="/taellere/<%= counter._id %>" class="hover:text-red-accent"><%= counter.name %></a></h2>
+              <form action="/taellere/<%= counter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Vil du slette denne tæller?')">
+                <button type="submit" class="text-tree-brown hover:text-red-accent text-sm font-semibold" aria-label="Slet <%= counter.name %>">Slet</button>
+              </form>
+            </div>
+            <div class="text-center mb-5" aria-live="polite">
+              <span class="block text-sm font-semibold uppercase text-tree-brown">Omgang</span>
+              <strong class="counter-value block text-7xl font-bold text-dark-brown leading-none mt-2"><%= counter.count %></strong>
+            </div>
+            <button type="button" data-action="increment" class="w-full min-h-24 bg-red-accent hover:bg-red-accent-dark active:bg-red-accent-bright disabled:opacity-60 text-white text-2xl font-bold rounded shadow transition-colors">+ 1 omgang</button>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <button type="button" data-action="decrement" class="min-h-12 border-2 border-warm-taupe text-dark-brown font-semibold rounded hover:bg-sand-light disabled:opacity-60">− 1</button>
+              <button type="button" data-action="reset" class="min-h-12 border-2 border-red-accent text-red-accent font-semibold rounded hover:bg-red-accent hover:text-white disabled:opacity-60">Nulstil</button>
+            </div>
+            <p class="counter-error text-red-accent text-sm mt-3 hidden" role="alert"></p>
+            <a href="/taellere/<%= counter._id %>" class="btn-secondary block text-center mt-4">Åbn projekt</a>
+
+            <details class="mt-5 border-t border-warm-taupe pt-4">
+              <summary class="cursor-pointer font-bold text-dark-brown">Indtagningsplan</summary>
+              <% const plan = counter.decreasePlan; %>
+              <% if (plan && plan.startStitches && plan.decreasesPerRound && plan.decreaseRounds) { %>
+                <% const finalStitches = plan.startStitches - (plan.decreasesPerRound * plan.decreaseRounds); %>
+                <% const lastRound = 1 + ((plan.decreaseRounds - 1) * plan.interval); %>
+                <% const sectionSize = Math.floor(plan.startStitches / plan.decreasesPerRound); %>
+                <% const extraSections = plan.startStitches % plan.decreasesPerRound; %>
+                <div class="grid grid-cols-2 gap-3 my-4 text-sm">
+                  <div class="bg-sand-light p-3">
+                    <span class="block text-tree-brown">Markører</span>
+                    <strong class="text-dark-brown"><%= plan.decreasesPerRound %> stk.</strong>
+                  </div>
+                  <div class="bg-sand-light p-3">
+                    <span class="block text-tree-brown">Mellem markører</span>
+                    <strong class="text-dark-brown"><%= extraSections === 0 ? sectionSize : `${sectionSize}-${sectionSize + 1}` %> masker</strong>
+                  </div>
+                  <div class="bg-sand-light p-3">
+                    <span class="block text-tree-brown">Til sidst</span>
+                    <strong class="text-dark-brown"><%= finalStitches %> masker</strong>
+                  </div>
+                  <div class="bg-sand-light p-3">
+                    <span class="block text-tree-brown">Sidste indtagning</span>
+                    <strong class="text-dark-brown">Omgang <%= lastRound %></strong>
+                  </div>
+                </div>
+                <div class="border-l-4 border-olive-muted bg-sand-light p-4 mb-4 text-sm text-dark-brown">
+                  <% if (extraSections === 0) { %>
+                    <p class="font-semibold mb-2">Sæt første markør ved omgangens begyndelse og derefter en markør for hver <%= sectionSize %> masker.</p>
+                  <% } else { %>
+                    <p class="font-semibold mb-2">Fordel markørerne i <%= extraSections %> sektioner med <%= sectionSize + 1 %> masker og <%= plan.decreasesPerRound - extraSections %> sektioner med <%= sectionSize %> masker.</p>
+                  <% } %>
+                  <p>På en indtagningsomgang tager du 1 maske ind efter hver markør. Det giver <%= plan.decreasesPerRound %> masker færre i alt.</p>
+                </div>
+
+                <h3 class="font-bold text-dark-brown mb-2">Omgangsplan</h3>
+                <ol class="divide-y divide-warm-taupe border border-warm-taupe mb-4 max-h-64 overflow-y-auto">
+                  <% for (let round = 1; round <= lastRound; round += 1) { %>
+                    <% const isDecreaseRound = (round - 1) % plan.interval === 0; %>
+                    <% const completedDecreases = isDecreaseRound ? Math.floor((round - 1) / plan.interval) + 1 : Math.ceil((round - 1) / plan.interval); %>
+                    <% const stitchesAfterRound = plan.startStitches - (completedDecreases * plan.decreasesPerRound); %>
+                    <li class="flex justify-between gap-3 px-3 py-2 <%= isDecreaseRound ? 'bg-warm-beige font-semibold' : 'bg-white' %>">
+                      <span>Omgang <%= round %>: <%= isDecreaseRound ? `tag ${plan.decreasesPerRound} masker ind` : 'strik uden indtagning' %></span>
+                      <span class="whitespace-nowrap"><%= stitchesAfterRound %> m</span>
+                    </li>
+                  <% } %>
+                </ol>
+              <% } else { %>
+                <p class="text-sm text-tree-brown my-3">Projektet har endnu ingen indtagningsplan.</p>
+              <% } %>
+
+              <form action="/taellere/<%= counter._id %>/decrease-plan?_method=PUT" method="POST" class="grid grid-cols-2 gap-3">
+                <label class="text-sm text-dark-brown">Startmasker
+                  <input name="startStitches" type="number" min="1" step="1" required value="<%= plan && plan.startStitches ? plan.startStitches : 90 %>" class="w-full mt-1 px-3 py-2 border-2 border-warm-taupe rounded">
+                </label>
+                <label class="text-sm text-dark-brown">Indtagninger
+                  <input name="decreasesPerRound" type="number" min="1" step="1" required value="<%= plan && plan.decreasesPerRound ? plan.decreasesPerRound : 6 %>" class="w-full mt-1 px-3 py-2 border-2 border-warm-taupe rounded">
+                </label>
+                <label class="text-sm text-dark-brown">Antal gange
+                  <input name="decreaseRounds" type="number" min="1" step="1" required value="<%= plan && plan.decreaseRounds ? plan.decreaseRounds : 11 %>" class="w-full mt-1 px-3 py-2 border-2 border-warm-taupe rounded">
+                </label>
+                <label class="text-sm text-dark-brown">Hver omgang
+                  <input name="interval" type="number" min="1" step="1" required value="<%= plan && plan.interval ? plan.interval : 2 %>" class="w-full mt-1 px-3 py-2 border-2 border-warm-taupe rounded">
+                </label>
+                <button type="submit" class="btn-secondary col-span-2">Gem indtagningsplan</button>
+              </form>
+            </details>
+          </article>
+        <% }) %>
+      </section>
+    <% } %>
+  </main>
+  <footer class="bg-dark-brown text-sand-light text-center py-4 border-t-4 border-red-accent">
+    <p>&copy; <%= new Date().getFullYear() %> Opskrifter Database</p>
+  </footer>
+  <script src="/js/main.js"></script>
+</body>
+</html>
