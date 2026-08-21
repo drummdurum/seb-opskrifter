@@ -14,8 +14,9 @@
         <div class="flex flex-wrap justify-center gap-4 items-center">
           <a href="/" class="text-dark-brown hover:text-red-accent">Alle opskrifter</a>
           <a href="/tags" class="text-dark-brown hover:text-red-accent">Tags</a>
-          <a href="/taellere" class="font-semibold text-red-accent">Strikkeprojekter</a>
-          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+          <a href="/taellere" class="font-semibold text-red-accent">Strik</a>
+          <div class="flex flex-nowrap gap-2"><a href="https://seb-opskrifter-production.up.railway.app/taellere" class="btn-secondary whitespace-nowrap">+ Ny strikkeopskrift</a><a href="/ny" class="btn-primary whitespace-nowrap">+ Ny opskrift</a></div>
+          <form action="/logout" method="POST"><button type="submit" class="text-sm font-semibold text-tree-brown hover:text-red-accent">Log ud</button></form>
         </div>
       </div>
     </div>
@@ -28,7 +29,7 @@
         <p class="text-sm font-semibold uppercase text-olive-muted mb-2">Strikkeprojekt</p>
         <h1 class="text-3xl sm:text-4xl font-bold text-dark-brown break-words"><%= project.name %></h1>
       </div>
-      <% const statusLabels = { planned: 'Planlagt', in_progress: 'I gang', finished: 'Færdigt', paused: 'På pause' }; %>
+      <% const statusLabels = { planned: 'Planlagt', in_progress: 'I gang', finished: 'Færdigt', paused: 'På pause', shame_corner: 'Skammekrogen' }; %>
       <span class="self-start sm:self-auto bg-olive-muted text-white px-3 py-2 rounded font-semibold"><%= statusLabels[project.status] || 'I gang' %></span>
     </header>
 
@@ -83,6 +84,45 @@
               </label>
             </div>
             <button type="submit" class="btn-secondary self-end">Upload</button>
+          </form>
+        </section>
+
+        <section id="documents">
+          <% const documents = project.documents || []; %>
+          <div class="flex items-center justify-between gap-3 mb-4">
+            <h2 class="text-2xl font-bold text-dark-brown">Strikkeopskrift som PDF</h2>
+            <span class="text-sm text-tree-brown"><%= documents.length %> stk.</span>
+          </div>
+          <% if (documents.length) { %>
+            <div class="divide-y divide-warm-taupe bg-white border border-warm-taupe shadow-md mb-5">
+              <% documents.slice().reverse().forEach(document => { %>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4">
+                  <div class="min-w-0">
+                    <strong class="block text-dark-brown break-words"><%= document.title || document.originalName %></strong>
+                    <% if (document.title) { %><span class="block text-sm text-tree-brown break-words"><%= document.originalName %></span><% } %>
+                  </div>
+                  <div class="flex items-center gap-4 shrink-0">
+                    <a href="/uploads/projects/pdfs/<%= document.filename %>" target="_blank" rel="noopener noreferrer" class="btn-secondary">Åbn PDF</a>
+                    <form action="/taellere/<%= project._id %>/documents/<%= document._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Vil du slette PDF-filen?')">
+                      <button type="submit" class="text-sm font-semibold text-red-accent">Slet</button>
+                    </form>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="border-2 border-dashed border-warm-taupe p-6 text-center text-tree-brown mb-5">Der er endnu ikke gemt en PDF på projektet.</p>
+          <% } %>
+          <form action="/taellere/<%= project._id %>/documents" method="POST" enctype="multipart/form-data" class="bg-white border-l-4 border-oat-brown p-4 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-3">
+            <div class="space-y-3">
+              <label class="block text-sm font-semibold text-dark-brown">Vælg PDF
+                <input name="pdf" type="file" accept="application/pdf,.pdf" required class="block w-full mt-1 border-2 border-warm-taupe rounded p-2">
+              </label>
+              <label class="block text-sm font-semibold text-dark-brown">Titel
+                <input name="title" type="text" maxlength="150" placeholder="F.eks. Sweater størrelse M" class="block w-full mt-1 border-2 border-warm-taupe rounded px-3 py-2">
+              </label>
+            </div>
+            <button type="submit" class="btn-secondary self-end">Gem PDF</button>
           </form>
         </section>
 

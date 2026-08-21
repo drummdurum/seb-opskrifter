@@ -14,9 +14,10 @@
         <div class="flex flex-wrap gap-4 items-center">
           <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
           <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
-          <a href="/taellere" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tællere</a>
+          <a href="/taellere" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Strik</a>
           <a href="/mail" aria-current="page" class="font-semibold text-red-accent">Mail</a>
-          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+          <div class="flex flex-nowrap gap-2"><a href="https://seb-opskrifter-production.up.railway.app/taellere" class="btn-secondary whitespace-nowrap">+ Ny strikkeopskrift</a><a href="/ny" class="btn-primary whitespace-nowrap">+ Ny opskrift</a></div>
+          <form action="/logout" method="POST"><button type="submit" class="text-sm font-semibold text-tree-brown hover:text-red-accent">Log ud</button></form>
         </div>
       </div>
     </div>
@@ -37,6 +38,7 @@
         <% } else { %>
           <a href="/api/auth/google" class="btn-secondary">Forny adgang</a>
           <button id="sync-btn" class="btn-primary">Synkronisér</button>
+          <form action="/mail/disconnect" method="POST" onsubmit="return confirm('Vil du afbryde Gmail-forbindelsen?')"><button type="submit" class="text-sm font-semibold text-red-accent">Afbryd Gmail</button></form>
         <% } %>
       </div>
     </div>

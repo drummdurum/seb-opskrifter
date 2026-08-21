@@ -14,9 +14,10 @@
         <div class="flex flex-wrap justify-center gap-4 items-center">
           <a href="/" class="text-dark-brown hover:text-red-accent transition-colors">Alle opskrifter</a>
           <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors">Tags</a>
-          <a href="/taellere" aria-current="page" class="font-semibold text-red-accent">Tællere</a>
+          <a href="/taellere" aria-current="page" class="font-semibold text-red-accent">Strik</a>
           <a href="/mail" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Mail</a>
-          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+          <div class="flex flex-nowrap gap-2"><a href="https://seb-opskrifter-production.up.railway.app/taellere" class="btn-secondary whitespace-nowrap">+ Ny strikkeopskrift</a><a href="/ny" class="btn-primary whitespace-nowrap">+ Ny opskrift</a></div>
+          <form action="/logout" method="POST"><button type="submit" class="text-sm font-semibold text-tree-brown hover:text-red-accent">Log ud</button></form>
         </div>
       </div>
     </div>
@@ -56,6 +57,12 @@
                 <button type="submit" class="text-tree-brown hover:text-red-accent text-sm font-semibold" aria-label="Slet <%= counter.name %>">Slet</button>
               </form>
             </div>
+            <% if (counter.images && counter.images.length > 0) { %>
+              <% const latestImage = counter.images[counter.images.length - 1]; %>
+              <a href="/taellere/<%= counter._id %>" class="block mb-5 overflow-hidden rounded border border-warm-taupe">
+                <img src="/uploads/projects/<%= latestImage.filename %>" alt="<%= latestImage.caption || counter.name %>" class="w-full aspect-[4/3] object-cover">
+              </a>
+            <% } %>
             <div class="text-center mb-5" aria-live="polite">
               <span class="block text-sm font-semibold uppercase text-tree-brown">Omgang</span>
               <strong class="counter-value block text-7xl font-bold text-dark-brown leading-none mt-2"><%= counter.count %></strong>

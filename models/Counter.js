@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const counterSchema = new mongoose.Schema({
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   name: {
     type: String,
     required: [true, 'Projektets navn er påkrævet'],
@@ -21,7 +22,7 @@ const counterSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['planned', 'in_progress', 'finished', 'paused'],
+    enum: ['planned', 'in_progress', 'finished', 'paused', 'shame_corner'],
     default: 'in_progress'
   },
   pattern: {
@@ -43,6 +44,12 @@ const counterSchema = new mongoose.Schema({
   images: [{
     filename: { type: String, required: true },
     caption: { type: String, trim: true, maxlength: 150, default: '' },
+    createdAt: { type: Date, default: Date.now }
+  }],
+  documents: [{
+    filename: { type: String, required: true },
+    originalName: { type: String, required: true, maxlength: 255 },
+    title: { type: String, trim: true, maxlength: 150, default: '' },
     createdAt: { type: Date, default: Date.now }
   }],
   notes: [{

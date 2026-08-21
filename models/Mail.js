@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
 const mailSchema = new mongoose.Schema({
+  ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   gmail_id: {
     type: String,
     required: true,
-    unique: true,
     index: true
   },
   thread_id: { type: String, default: null },
@@ -31,5 +31,7 @@ const mailSchema = new mongoose.Schema({
 }, {
   timestamps: true
 });
+
+mailSchema.index({ ownerId: 1, gmail_id: 1 }, { unique: true });
 
 module.exports = mongoose.model('Mail', mailSchema);

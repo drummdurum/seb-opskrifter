@@ -38,9 +38,17 @@ describe('Counter validation', () => {
       yarn: { brand: 'DROPS', name: 'Air', metersPerSkein: 150, gramsPerSkein: 50, skeinsUsed: 3.5 },
       needleSize: 5,
       notes: [{ text: 'Lavede ærmet 2 cm længere.' }],
-      images: [{ filename: 'project.jpg', caption: 'Første ærme' }]
+      images: [{ filename: 'project.jpg', caption: 'Første ærme' }],
+      documents: [{ filename: 'pattern.pdf', originalName: 'min-opskrift.pdf', title: 'Min opskrift' }]
     });
     await expect(counter.validate()).resolves.toBeUndefined();
     expect(counter.yarn.metersPerSkein * counter.yarn.skeinsUsed).toBe(525);
+    expect(counter.documents[0].originalName).toBe('min-opskrift.pdf');
+  });
+
+  test('accepts Skammekrogen as project status', async () => {
+    const counter = new Counter({ name: 'Den svære sweater', status: 'shame_corner' });
+    await expect(counter.validate()).resolves.toBeUndefined();
+    expect(counter.status).toBe('shame_corner');
   });
 });

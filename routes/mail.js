@@ -7,14 +7,15 @@ const { encrypt, decrypt } = require('../services/crypto');
 const gmailService = require('../services/gmail');
 const { classifyEmail } = require('../services/classifier');
 const { suggestReply } = require('../services/reply');
+const User = require('../models/User');
 
 const CATEGORY_LABELS = { newsletter: 'Nyhedsbrev', receipt: 'Kvittering', other: 'Andet' };
 
 // Byg en autoriseret Gmail-klient ud fra de gemte (krypterede) tokens.
-async function getGmailClient() {
-  const stored = await store.getSetting('google_tokens');
-  if (!stored) throw new Error('Gmail er ikke forbundet.');
-  return gmailService.gmailFromTokens(JSON.parse(decrypt(stored)));
+async function getGmailClient(userId) {
+  const user = await User.findById(userId).select('+gmailTokensEncrypted');
+  if (!user || !user.gmailTokensEncrypted) throw new Error('Gmail er ikke forbundet.');
+  return gmailService.gmailFromTokens(JSON.parse(decrypt(user.gmailTokensEncrypted)));
 }
 
 // Læs én cookie fra request (undgår ekstra middleware).
@@ -32,9 +33,9 @@ router.get('/mail', async (req, res) => {
   try {
     const category = req.query.category;
     const [emails, stats, tokens] = await Promise.all([
-      store.getEmails(category),
-      store.getStats(),
-      store.getSetting('google_tokens'),
+      store.getEmails(req.user._id, category),
+      store.getStats(req.user._id),
+      User.findById(req.user._id).select('+gmailTokensEncrypted').lean(),
     ]);
     const oauthConfigured = Boolean(
       process.env.GOOGLE_CLIENT_ID &&
@@ -47,7 +48,7 @@ router.get('/mail', async (req, res) => {
       emails,
       stats,
       activeCategory: category || 'all',
-      connected: Boolean(tokens),
+      connected: Boolean(tokens && tokens.gmailTokensEncrypted),
       oauthConfigured,
       labels: CATEGORY_LABELS,
       error: req.query.error || null,
@@ -69,13 +70,7 @@ router.get('/api/auth/google', (req, res) => {
       scope: gmailService.gmailScopes,
       state,
     });
-    res.cookie('oauth_state', state, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 600000,
-      path: '/',
-    });
+    req.session.gmailOauthState = state;
     res.redirect(url);
   } catch (err) {
     res.redirect('/mail?error=oauth_not_configured');
@@ -85,15 +80,24 @@ router.get('/api/auth/google', (req, res) => {
 // --- OAuth callback ---
 router.get('/api/auth/google/callback', async (req, res) => {
   const { code, state } = req.query;
-  const expected = readCookie(req, 'oauth_state');
+  const expected = req.session.gmailOauthState;
   if (!code || !state || !expected || state !== expected) {
     return res.redirect('/mail?error=invalid_oauth_state');
   }
   try {
     const auth = gmailService.getOAuthClient();
     const { tokens } = await auth.getToken(code);
-    await store.setSetting('google_tokens', encrypt(JSON.stringify(tokens)));
-    res.clearCookie('oauth_state', { path: '/' });
+    const existingUser = await User.findById(req.user._id).select('+gmailTokensEncrypted');
+    if (!tokens.refresh_token && existingUser.gmailTokensEncrypted) {
+      const previous = JSON.parse(decrypt(existingUser.gmailTokensEncrypted));
+      tokens.refresh_token = previous.refresh_token;
+    }
+    const gmail = gmailService.gmailFromTokens(tokens);
+    const profile = await gmail.users.getProfile({ userId: 'me' });
+    existingUser.gmailTokensEncrypted = encrypt(JSON.stringify(tokens));
+    existingUser.gmailEmail = profile.data.emailAddress || '';
+    await existingUser.save();
+    req.session.gmailOauthState = null;
     res.redirect('/mail');
   } catch (err) {
     console.error('OAuth callback failed', err);
@@ -101,10 +105,29 @@ router.get('/api/auth/google/callback', async (req, res) => {
   }
 });
 
+router.post('/mail/disconnect', async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id).select('+gmailTokensEncrypted');
+    if (user && user.gmailTokensEncrypted) {
+      try {
+        const auth = gmailService.getOAuthClient();
+        auth.setCredentials(JSON.parse(decrypt(user.gmailTokensEncrypted)));
+        await auth.revokeCredentials();
+      } catch (error) {
+        console.warn('Google-token kunne ikke tilbagekaldes eksternt:', error.message);
+      }
+      user.gmailTokensEncrypted = null;
+      user.gmailEmail = '';
+      await user.save();
+    }
+    res.redirect('/mail');
+  } catch (error) { next(error); }
+});
+
 // --- Synkronisér ulæste indbakke-mails ---
 router.post('/mail/sync', async (req, res) => {
   try {
-    const gmail = await getGmailClient();
+    const gmail = await getGmailClient(req.user._id);
     const list = await gmail.users.messages.list({
       userId: 'me',
       q: 'is:unread in:inbox',
@@ -130,7 +153,7 @@ router.post('/mail/sync', async (req, res) => {
         senderEmail: from.email,
       });
 
-      await store.upsertEmail({
+      await store.upsertEmail(req.user._id, {
         gmail_id: item.id,
         thread_id: message.threadId || null,
         sender_name: from.name,
@@ -163,7 +186,7 @@ router.post('/mail/unsubscribe', async (req, res) => {
     const { gmail_id: gmailId } = req.body;
     if (!gmailId) return res.status(400).json({ error: 'gmail_id mangler.' });
 
-    const email = await store.getEmailByGmailId(gmailId);
+    const email = await store.getEmailByGmailId(req.user._id, gmailId);
     if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
 
     const url = email.unsubscribe_url;
@@ -182,7 +205,7 @@ router.post('/mail/unsubscribe', async (req, res) => {
       return res.status(502).json({ error: `Afsenderen svarede ${response.status}.`, fallback: url });
     }
 
-    await store.markUnsubscribed(gmailId);
+    await store.markUnsubscribed(req.user._id, gmailId);
     res.json({ ok: true });
   } catch (err) {
     console.error('Unsubscribe failed', err);
@@ -196,12 +219,12 @@ router.post('/mail/reply', async (req, res) => {
     const { gmail_id: gmailId } = req.body;
     if (!gmailId) return res.status(400).json({ error: 'gmail_id mangler.' });
 
-    const email = await store.getEmailByGmailId(gmailId);
+    const email = await store.getEmailByGmailId(req.user._id, gmailId);
     if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
 
     let body = email.snippet;
     try {
-      const gmail = await getGmailClient();
+      const gmail = await getGmailClient(req.user._id);
       body = await gmailService.fetchMessageBody(gmail, gmailId);
     } catch {
       // Falder tilbage til det gemte uddrag.
@@ -224,10 +247,10 @@ router.post('/mail/reply/send', async (req, res) => {
       return res.status(400).json({ error: 'Svaret er tomt.' });
     }
 
-    const email = await store.getEmailByGmailId(gmailId);
+    const email = await store.getEmailByGmailId(req.user._id, gmailId);
     if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
 
-    const gmail = await getGmailClient();
+    const gmail = await getGmailClient(req.user._id);
     await gmailService.sendReply(gmail, gmailId, body.trim());
     res.json({ ok: true });
   } catch (err) {
@@ -242,12 +265,12 @@ router.post('/mail/archive', async (req, res) => {
     const { gmail_id: gmailId } = req.body;
     if (!gmailId) return res.status(400).json({ error: 'gmail_id mangler.' });
 
-    const email = await store.getEmailByGmailId(gmailId);
+    const email = await store.getEmailByGmailId(req.user._id, gmailId);
     if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
 
-    const gmail = await getGmailClient();
+    const gmail = await getGmailClient(req.user._id);
     await gmailService.archiveMessage(gmail, gmailId);
-    await store.markArchived(gmailId);
+    await store.markArchived(req.user._id, gmailId);
     res.json({ ok: true });
   } catch (err) {
     console.error('Archive failed', err);

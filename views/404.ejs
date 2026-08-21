@@ -14,9 +14,10 @@
         <div class="flex gap-4">
           <a href="/" class="text-gray-600 hover:text-blue-600">Alle opskrifter</a>
           <a href="/tags" class="text-gray-600 hover:text-blue-600">Tags</a>
-          <a href="/taellere" class="text-gray-600 hover:text-blue-600">Tællere</a>
+          <a href="/taellere" class="text-gray-600 hover:text-blue-600">Strik</a>
           <a href="/mail" class="text-gray-600 hover:text-blue-600">Mail</a>
-          <a href="/ny" class="btn-primary">+ Ny opskrift</a>
+          <div class="flex flex-nowrap gap-2"><a href="https://seb-opskrifter-production.up.railway.app/taellere" class="btn-secondary whitespace-nowrap">+ Ny strikkeopskrift</a><a href="/ny" class="btn-primary whitespace-nowrap">+ Ny opskrift</a></div>
+          <% if (currentUser) { %><form action="/logout" method="POST"><button class="font-semibold text-gray-600 hover:text-blue-600">Log ud</button></form><% } else { %><a href="/login" class="font-semibold text-blue-600">Log ind</a><% } %>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Recipe = require('../models/Recipe');
 const Counter = require('../models/Counter');
+const User = require('../models/User');
 
 const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/opskrifter_test';
 
@@ -50,6 +51,7 @@ const counters = [
 
 async function seed() {
   await mongoose.connect(mongoUri);
+  const owner = await User.findOne().sort({ createdAt: 1 });
 
   for (const recipe of recipes) {
     await Recipe.findOneAndUpdate(
@@ -60,18 +62,19 @@ async function seed() {
   }
 
   for (const counter of counters) {
-    const update = { $setOnInsert: { name: counter.name, count: counter.count } };
+    const ownerFilter = owner ? { ownerId: owner._id } : { ownerId: { $exists: false } };
+    const update = { $setOnInsert: { name: counter.name, count: counter.count, ...(owner ? { ownerId: owner._id } : {}) } };
     const { name, count, ...projectDetails } = counter;
     if (Object.keys(projectDetails).length) update.$set = projectDetails;
     await Counter.findOneAndUpdate(
-      { name: counter.name },
+      { name: counter.name, ...ownerFilter },
       update,
       { upsert: true, runValidators: true }
     );
   }
 
   await Counter.updateOne(
-    { name: 'Blå sweater', 'notes.text': { $ne: 'Prøvelappen passede efter vask. Jeg fortsætter på pind 4 mm.' } },
+    { name: 'Blå sweater', ...(owner ? { ownerId: owner._id } : { ownerId: { $exists: false } }), 'notes.text': { $ne: 'Prøvelappen passede efter vask. Jeg fortsætter på pind 4 mm.' } },
     { $push: { notes: { text: 'Prøvelappen passede efter vask. Jeg fortsætter på pind 4 mm.' } } }
   );
 
