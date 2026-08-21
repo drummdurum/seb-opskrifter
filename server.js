@@ -85,11 +85,13 @@ const recipeRoutes = require('./routes/recipes');
 const counterRoutes = require('./routes/counters');
 const mailRoutes = require('./routes/mail');
 const authRoutes = require('./routes/auth');
+const shoppingListRoutes = require('./routes/shoppingList');
 
 app.use('/', authRoutes);
 app.use('/', pageRoutes);
 app.use('/recipes', recipeRoutes);
 app.use('/taellere', requireAuth, counterRoutes);
+app.use('/indkoebsliste', requireAuth, shoppingListRoutes);
 app.use('/', requireAuth, requireVerified, mailRoutes);
 
 // 404 Handler

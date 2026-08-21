@@ -15,6 +15,7 @@
           <a href="/" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Alle opskrifter</a>
           <a href="/tags" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Tags</a>
           <a href="/taellere" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Strik</a>
+          <a href="/indkoebsliste" class="text-dark-brown hover:text-red-accent transition-colors duration-200">Indkøbsliste</a>
           <div class="flex flex-nowrap gap-2"><a href="https://seb-opskrifter-production.up.railway.app/taellere" class="btn-secondary whitespace-nowrap">+ Ny strikkeopskrift</a><a href="/ny" class="btn-primary whitespace-nowrap">+ Ny opskrift</a></div>
           <% if (currentUser) { %><form action="/logout" method="POST"><button class="font-semibold text-tree-brown hover:text-red-accent">Log ud</button></form><% } else { %><a href="/login" class="font-semibold text-red-accent">Log ind</a><% } %>
         </div>

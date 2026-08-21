@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> | Opskrifter</title>
+  <link rel="stylesheet" href="/css/output.css">
+</head>
+<body class="bg-sand-light min-h-screen flex flex-col">
+  <nav class="bg-warm-beige shadow-md border-b-4 border-red-accent">
+    <div class="container mx-auto px-4 py-4">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+        <a href="/" class="text-2xl font-bold text-dark-brown">Opskrifter</a>
+        <div class="flex flex-wrap justify-center gap-4 items-center">
+          <a href="/" class="text-dark-brown hover:text-red-accent">Alle opskrifter</a>
+          <a href="/tags" class="text-dark-brown hover:text-red-accent">Tags</a>
+          <a href="/taellere" class="text-dark-brown hover:text-red-accent">Strik</a>
+          <a href="/indkoebsliste" aria-current="page" class="font-semibold text-red-accent">Indkøbsliste</a>
+          <a href="/mail" class="text-dark-brown hover:text-red-accent">Mail</a>
+          <form action="/logout" method="POST"><button type="submit" class="text-sm font-semibold text-tree-brown hover:text-red-accent">Log ud</button></form>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container mx-auto px-4 py-8 sm:py-12 flex-1">
+    <header class="max-w-2xl mb-8">
+      <p class="text-sm font-semibold uppercase text-olive-muted mb-2">Det du mangler</p>
+      <h1 class="text-3xl sm:text-4xl font-bold text-dark-brown mb-3">Indkøbsliste</h1>
+    </header>
+
+    <section class="max-w-2xl bg-white border-l-4 border-olive-muted p-4 sm:p-5 mb-6" aria-labelledby="add-item-heading">
+      <h2 id="add-item-heading" class="text-lg font-bold text-dark-brown mb-3">Tilføj en vare</h2>
+      <% if (error) { %><p class="text-red-accent font-semibold mb-3" role="alert"><%= error %></p><% } %>
+      <form action="/indkoebsliste/items" method="POST" class="flex flex-col sm:flex-row gap-3">
+        <label for="shopping-item" class="sr-only">Vare</label>
+        <input id="shopping-item" name="text" value="<%= value %>" type="text" maxlength="120" required autofocus placeholder="F.eks. kaffe eller rundpind 4 mm" class="flex-1 px-4 py-3 border-2 border-warm-taupe rounded focus:outline-none focus:ring-2 focus:ring-olive-muted">
+        <button type="submit" class="btn-secondary whitespace-nowrap">Tilføj</button>
+      </form>
+    </section>
+
+    <% if (!list || list.items.length === 0) { %>
+      <div class="max-w-2xl border-2 border-dashed border-warm-taupe p-8 text-center">
+        <h2 class="text-xl font-bold text-dark-brown mb-2">Listen er tom</h2>
+        <p class="text-tree-brown">Tilføj det næste, du kommer i tanke om.</p>
+      </div>
+    <% } else { %>
+      <section class="max-w-2xl" aria-label="Varer på indkøbslisten">
+        <ul class="divide-y divide-warm-taupe border border-warm-taupe bg-white">
+          <% list.items.forEach(item => { %>
+            <li class="flex items-center gap-3 p-4">
+              <form action="/indkoebsliste/items/<%= item._id %>?_method=PATCH" method="POST">
+                <button type="submit" class="w-7 h-7 border-2 border-olive-muted rounded flex items-center justify-center text-dark-brown" aria-label="<%= item.completed ? 'Markér som mangler' : 'Markér som købt' %>"><%= item.completed ? '✓' : '' %></button>
+              </form>
+              <span class="flex-1 break-words <%= item.completed ? 'line-through opacity-50' : 'text-dark-brown' %>"><%= item.text %></span>
+              <form action="/indkoebsliste/items/<%= item._id %>?_method=DELETE" method="POST">
+                <button type="submit" class="text-sm font-semibold text-tree-brown hover:text-red-accent" aria-label="Slet <%= item.text %>">Slet</button>
+              </form>
+            </li>
+          <% }) %>
+        </ul>
+        <form action="/indkoebsliste?_method=DELETE" method="POST" class="mt-5" onsubmit="return confirm('Vil du slette hele indkøbslisten?')">
+          <button type="submit" class="btn-danger">Slet hele listen</button>
+        </form>
+      </section>
+    <% } %>
+  </main>
+</body>
+</html>

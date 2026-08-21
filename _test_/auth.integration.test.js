@@ -7,6 +7,7 @@ const mongoose = require('mongoose');
 const app = require('../server');
 const User = require('../models/User');
 const Counter = require('../models/Counter');
+const ShoppingList = require('../models/ShoppingList');
 
 describe('multi-user authentication and ownership', () => {
   let ownerAgent;
@@ -29,6 +30,7 @@ describe('multi-user authentication and ownership', () => {
 
   test('redirects guests away from private knitting projects and files', async () => {
     await request(app).get('/taellere').expect(302).expect('Location', '/login');
+    await request(app).get('/indkoebsliste').expect(302).expect('Location', '/login');
     await request(app).get('/uploads/projects/pdfs/private.pdf').expect(302).expect('Location', '/login');
   });
 
@@ -51,6 +53,25 @@ describe('multi-user authentication and ownership', () => {
     const list = await otherAgent.get('/taellere').expect(200);
     expect(list.text).not.toContain('Eksisterende sweater');
     await otherAgent.get(`/taellere/${legacyProject._id}`).expect(404);
+  });
+
+  test('shopping lists are private and can be deleted', async () => {
+    await ownerAgent.post('/indkoebsliste/items').type('form').send({ text: 'Rundpind 4 mm' })
+      .expect(302).expect('Location', '/indkoebsliste');
+
+    const owner = await User.findOne({ email: 'owner@example.test' });
+    const list = await ShoppingList.findOne({ ownerId: owner._id });
+    expect(list.items.map(item => item.text)).toEqual(['Rundpind 4 mm']);
+    await ownerAgent.get('/indkoebsliste').expect(200).expect(/Rundpind 4 mm/);
+    await otherAgent.get('/indkoebsliste').expect(200).expect(response => {
+      if (response.text.includes('Rundpind 4 mm')) throw new Error('En anden brugers vare blev vist.');
+    });
+    await otherAgent.delete(`/indkoebsliste/items/${list.items[0]._id}`).expect(404);
+
+    await ownerAgent.patch(`/indkoebsliste/items/${list.items[0]._id}`).expect(302);
+    expect((await ShoppingList.findById(list._id)).items[0].completed).toBe(true);
+    await ownerAgent.delete('/indkoebsliste').expect(302).expect('Location', '/indkoebsliste');
+    expect(await ShoppingList.exists({ ownerId: owner._id })).toBeNull();
   });
 
   test('food recipes remain public while Mail requires verified login', async () => {
