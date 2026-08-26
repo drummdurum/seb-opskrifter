@@ -107,15 +107,34 @@
     const actions = document.createElement('div');
     actions.className = 'flex flex-wrap gap-2 mt-2';
 
-    const sendBtn = button('Send svar', 'btn-primary text-sm');
-    const sendArchiveBtn = button('Send og arkivér', 'btn-secondary text-sm');
+    const approveBtn = button('Godkend svar', 'btn-primary text-sm');
+    const sendBtn = button('Send godkendt svar', 'btn-primary text-sm hidden');
+    const sendArchiveBtn = button('Send godkendt svar og arkivér', 'btn-secondary text-sm hidden');
     const cancelBtn = button('Annuller', 'text-sm px-3 py-1 rounded text-tree-brown hover:text-red-accent');
+    let approvalToken = null;
 
-    sendBtn.addEventListener('click', () => sendReply(card, textarea, false, [sendBtn, sendArchiveBtn]));
-    sendArchiveBtn.addEventListener('click', () => sendReply(card, textarea, true, [sendBtn, sendArchiveBtn]));
+    approveBtn.addEventListener('click', async () => {
+      const replyBody = textarea.value.trim();
+      if (!replyBody) { setStatus(card, 'Svaret er tomt.', 'text-red-accent'); return; }
+      approveBtn.disabled = true;
+      const approved = await postJSON('/mail/reply/approve', { gmail_id: card.dataset.gmailId, body: replyBody });
+      approveBtn.disabled = false;
+      if (!approved.ok) {
+        setStatus(card, (approved.body && approved.body.error) || 'Svaret kunne ikke godkendes.', 'text-red-accent');
+        return;
+      }
+      approvalToken = approved.body.approvalToken;
+      textarea.readOnly = true;
+      approveBtn.classList.add('hidden');
+      sendBtn.classList.remove('hidden');
+      sendArchiveBtn.classList.remove('hidden');
+      setStatus(card, 'Svar godkendt ✓ Du kan nu sende det.', 'text-olive-muted');
+    });
+    sendBtn.addEventListener('click', () => sendReply(card, textarea, false, approvalToken, [sendBtn, sendArchiveBtn]));
+    sendArchiveBtn.addEventListener('click', () => sendReply(card, textarea, true, approvalToken, [sendBtn, sendArchiveBtn]));
     cancelBtn.addEventListener('click', () => { box.classList.add('hidden'); box.innerHTML = ''; setStatus(card, ''); });
 
-    actions.append(sendBtn, sendArchiveBtn, cancelBtn);
+    actions.append(approveBtn, sendBtn, sendArchiveBtn, cancelBtn);
     box.append(textarea, actions);
     box.classList.remove('hidden');
     setStatus(card, '');
@@ -129,13 +148,13 @@
   }
 
   // --- Svar: send (evt. + arkivér) ---
-  async function sendReply(card, textarea, archive, buttons) {
+  async function sendReply(card, textarea, archive, approvalToken, buttons) {
     const body = textarea.value.trim();
     if (!body) { setStatus(card, 'Svaret er tomt.', 'text-red-accent'); return; }
     buttons.forEach((b) => (b.disabled = true));
     setStatus(card, archive ? 'Sender og arkiverer…' : 'Sender…', 'text-tree-brown');
 
-    const sent = await postJSON('/mail/reply/send', { gmail_id: card.dataset.gmailId, body });
+    const sent = await postJSON('/mail/reply/send', { gmail_id: card.dataset.gmailId, body, approval_token: approvalToken });
     if (!sent.ok) {
       buttons.forEach((b) => (b.disabled = false));
       setStatus(card, (sent.body && sent.body.error) || 'Svaret kunne ikke sendes.', 'text-red-accent');

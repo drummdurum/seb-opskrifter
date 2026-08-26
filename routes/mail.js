@@ -7,6 +7,7 @@ const { encrypt, decrypt } = require('../services/crypto');
 const gmailService = require('../services/gmail');
 const { classifyEmail } = require('../services/classifier');
 const { suggestReply } = require('../services/reply');
+const { createReplyApproval, consumeReplyApproval } = require('../services/replyApproval');
 const User = require('../models/User');
 
 const CATEGORY_LABELS = { newsletter: 'Nyhedsbrev', receipt: 'Kvittering', other: 'Andet' };
@@ -131,7 +132,7 @@ router.post('/mail/sync', async (req, res) => {
     const list = await gmail.users.messages.list({
       userId: 'me',
       q: 'is:unread in:inbox',
-      maxResults: 50,
+      maxResults: 100,
     });
 
     let synced = 0;
@@ -238,20 +239,37 @@ router.post('/mail/reply', async (req, res) => {
   }
 });
 
-// --- Send svar ---
+// --- Godkend det præcise svarudkast før afsendelse ---
+router.post('/mail/reply/approve', async (req, res) => {
+  const { gmail_id: gmailId, body } = req.body;
+  if (!gmailId) return res.status(400).json({ error: 'gmail_id mangler.' });
+  if (!body || typeof body !== 'string' || !body.trim()) {
+    return res.status(400).json({ error: 'Svaret er tomt.' });
+  }
+  const email = await store.getEmailByGmailId(req.user._id, gmailId);
+  if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
+  const approvalToken = createReplyApproval(req.session, gmailId, body.trim());
+  res.json({ ok: true, approvalToken });
+});
+
+// --- Send et godkendt svar ---
 router.post('/mail/reply/send', async (req, res) => {
   try {
-    const { gmail_id: gmailId, body } = req.body;
+    const { gmail_id: gmailId, body, approval_token: approvalToken } = req.body;
     if (!gmailId) return res.status(400).json({ error: 'gmail_id mangler.' });
     if (!body || typeof body !== 'string' || !body.trim()) {
       return res.status(400).json({ error: 'Svaret er tomt.' });
+    }
+    const trimmedBody = body.trim();
+    if (!consumeReplyApproval(req.session, approvalToken, gmailId, trimmedBody)) {
+      return res.status(403).json({ error: 'Svaret skal godkendes igen før afsendelse.' });
     }
 
     const email = await store.getEmailByGmailId(req.user._id, gmailId);
     if (!email) return res.status(404).json({ error: 'Mailen blev ikke fundet.' });
 
     const gmail = await getGmailClient(req.user._id);
-    await gmailService.sendReply(gmail, gmailId, body.trim());
+    await gmailService.sendReply(gmail, gmailId, trimmedBody);
     res.json({ ok: true });
   } catch (err) {
     console.error('Reply send failed', err);
