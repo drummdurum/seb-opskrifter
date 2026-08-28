@@ -55,6 +55,27 @@ describe('multi-user authentication and ownership', () => {
     await otherAgent.get(`/taellere/${legacyProject._id}`).expect(404);
   });
 
+  test('counter sessions synchronize and repeated operations are idempotent', async () => {
+    const started = await ownerAgent.post(`/taellere/${legacyProject._id}/session/start`).expect(200);
+    expect(started.body.activeSession).toMatchObject({ startCount: 0, rounds: 0 });
+
+    const operation = { change: 3, operationId: 'test_operation_123' };
+    const firstUpdate = await ownerAgent.patch(`/taellere/${legacyProject._id}/count`).send(operation).expect(200);
+    expect(firstUpdate.body).toMatchObject({ count: 3, activeSession: { rounds: 3 } });
+
+    const duplicateUpdate = await ownerAgent.patch(`/taellere/${legacyProject._id}/count`).send(operation).expect(200);
+    expect(duplicateUpdate.body).toMatchObject({ count: 3, activeSession: { rounds: 3 } });
+
+    const state = await ownerAgent.get(`/taellere/${legacyProject._id}/state`).expect(200);
+    expect(state.headers['cache-control']).toBe('no-store');
+    expect(state.body.count).toBe(3);
+
+    const ended = await ownerAgent.post(`/taellere/${legacyProject._id}/session/end`).expect(200);
+    expect(ended.body.activeSession).toBeNull();
+    const saved = await Counter.findById(legacyProject._id);
+    expect(saved.sessionHistory[0]).toMatchObject({ startCount: 0, endCount: 3, rounds: 3 });
+  });
+
   test('shopping lists are private and can be deleted', async () => {
     await ownerAgent.post('/indkoebsliste/items').type('form').send({ text: 'Rundpind 4 mm' })
       .expect(302).expect('Location', '/indkoebsliste');

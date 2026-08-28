@@ -51,4 +51,24 @@ describe('Counter validation', () => {
     await expect(counter.validate()).resolves.toBeUndefined();
     expect(counter.status).toBe('shame_corner');
   });
+
+  test('accepts an active session and completed session history', async () => {
+    const startedAt = new Date('2026-08-28T10:00:00Z');
+    const counter = new Counter({
+      name: 'Sessionssweater',
+      count: 14,
+      activeSession: { startedAt, startCount: 10, rounds: 4 },
+      sessionHistory: [{
+        startedAt: new Date('2026-08-27T10:00:00Z'),
+        endedAt: new Date('2026-08-27T11:00:00Z'),
+        startCount: 5,
+        endCount: 10,
+        rounds: 5
+      }]
+    });
+
+    await expect(counter.validate()).resolves.toBeUndefined();
+    expect(counter.activeSession.rounds).toBe(4);
+    expect(counter.sessionHistory).toHaveLength(1);
+  });
 });

@@ -51,7 +51,7 @@
     <% } else { %>
       <section class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" aria-label="Dine tællere">
         <% counters.forEach(counter => { %>
-          <article class="counter-card bg-white border border-warm-taupe shadow-md p-5" data-counter-id="<%= counter._id %>">
+          <article class="counter-card bg-white border border-warm-taupe shadow-md p-5" data-counter-id="<%= counter._id %>" data-session-active="<%= counter.activeSession ? 'true' : 'false' %>" data-session-rounds="<%= counter.activeSession ? counter.activeSession.rounds : 0 %>" data-session-started-at="<%= counter.activeSession ? counter.activeSession.startedAt.toISOString() : '' %>">
             <div class="flex items-start justify-between gap-3 mb-5">
               <h2 class="text-xl font-bold text-dark-brown break-words min-w-0"><a href="/taellere/<%= counter._id %>" class="hover:text-red-accent"><%= counter.name %></a></h2>
               <form action="/taellere/<%= counter._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Vil du slette denne tæller?')">
@@ -68,12 +68,22 @@
               <span class="block text-sm font-semibold uppercase text-tree-brown">Omgang</span>
               <strong class="counter-value block text-7xl font-bold text-dark-brown leading-none mt-2"><%= counter.count %></strong>
             </div>
+            <div class="session-panel bg-sand-light border-l-4 border-olive-muted p-3 mb-3">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <strong class="session-title block text-dark-brown"><%= counter.activeSession ? 'Session i gang' : 'Klar til en session' %></strong>
+                  <span class="session-summary block text-sm text-tree-brown"><%= counter.activeSession ? `${counter.activeSession.rounds} omgange i denne session` : 'Start på én enhed og fortsæt på en anden.' %></span>
+                </div>
+                <button type="button" data-session-action="<%= counter.activeSession ? 'end' : 'start' %>" class="session-toggle btn-secondary shrink-0"><%= counter.activeSession ? 'Afslut' : 'Start' %></button>
+              </div>
+            </div>
             <button type="button" data-action="increment" class="w-full min-h-24 bg-red-accent hover:bg-red-accent-dark active:bg-red-accent-bright disabled:opacity-60 text-white text-2xl font-bold rounded shadow transition-colors">+ 1 omgang</button>
             <div class="grid grid-cols-2 gap-3 mt-3">
               <button type="button" data-action="decrement" class="min-h-12 border-2 border-warm-taupe text-dark-brown font-semibold rounded hover:bg-sand-light disabled:opacity-60">− 1</button>
               <button type="button" data-action="reset" class="min-h-12 border-2 border-red-accent text-red-accent font-semibold rounded hover:bg-red-accent hover:text-white disabled:opacity-60">Nulstil</button>
             </div>
             <p class="counter-error text-red-accent text-sm mt-3 hidden" role="alert"></p>
+            <p class="counter-sync text-tree-brown text-xs mt-2" aria-live="polite">Synkroniseret</p>
             <a href="/taellere/<%= counter._id %>" class="btn-secondary block text-center mt-4">Åbn projekt</a>
 
             <details class="mt-5 border-t border-warm-taupe pt-4">

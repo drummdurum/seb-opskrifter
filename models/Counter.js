@@ -1,5 +1,13 @@
 const mongoose = require('mongoose');
 
+const counterSessionSchema = new mongoose.Schema({
+  startedAt: { type: Date, required: true },
+  endedAt: { type: Date, default: null },
+  startCount: { type: Number, min: 0, required: true },
+  endCount: { type: Number, min: 0, default: null },
+  rounds: { type: Number, min: 0, default: 0 }
+}, { _id: true });
+
 const counterSchema = new mongoose.Schema({
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   name: {
@@ -14,6 +22,9 @@ const counterSchema = new mongoose.Schema({
     min: [0, 'Tælleren kan ikke være negativ'],
     validate: { validator: Number.isInteger, message: 'Tælleren skal være et helt tal' }
   },
+  activeSession: { type: counterSessionSchema, default: null },
+  sessionHistory: { type: [counterSessionSchema], default: [] },
+  recentOperationIds: { type: [String], default: [], select: false },
   decreasePlan: {
     startStitches: { type: Number, min: 1, default: null },
     decreasesPerRound: { type: Number, min: 1, default: null },

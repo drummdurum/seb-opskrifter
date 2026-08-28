@@ -34,13 +34,18 @@
       <span class="self-start sm:self-auto bg-olive-muted text-white px-3 py-2 rounded font-semibold"><%= statusLabels[project.status] || 'I gang' %></span>
     </header>
 
-    <section class="counter-card bg-white border-t-4 border-red-accent shadow-md p-5 sm:p-6 mb-8 max-w-3xl" data-counter-id="<%= project._id %>">
+    <section class="counter-card bg-white border-t-4 border-red-accent shadow-md p-5 sm:p-6 mb-8 max-w-3xl" data-counter-id="<%= project._id %>" data-session-active="<%= project.activeSession ? 'true' : 'false' %>" data-session-rounds="<%= project.activeSession ? project.activeSession.rounds : 0 %>" data-session-started-at="<%= project.activeSession ? project.activeSession.startedAt.toISOString() : '' %>">
       <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_minmax(12rem,18rem)] gap-5 items-center">
         <div class="text-center" aria-live="polite">
           <span class="block text-sm font-semibold uppercase text-tree-brown">Omgang</span>
           <strong class="counter-value block text-7xl font-bold text-dark-brown leading-none mt-2"><%= project.count %></strong>
         </div>
         <div>
+          <div class="session-panel bg-sand-light border-l-4 border-olive-muted p-3 mb-3">
+            <strong class="session-title block text-dark-brown"><%= project.activeSession ? 'Session i gang' : 'Klar til en session' %></strong>
+            <span class="session-summary block text-sm text-tree-brown mb-2"><%= project.activeSession ? `${project.activeSession.rounds} omgange i denne session` : 'Start her og fortsæt på mobil eller pc.' %></span>
+            <button type="button" data-session-action="<%= project.activeSession ? 'end' : 'start' %>" class="session-toggle btn-secondary w-full"><%= project.activeSession ? 'Afslut session' : 'Start session' %></button>
+          </div>
           <button type="button" data-action="increment" class="w-full min-h-24 bg-red-accent hover:bg-red-accent-dark active:bg-red-accent-bright disabled:opacity-60 text-white text-2xl font-bold rounded shadow">+ 1 omgang</button>
           <div class="grid grid-cols-2 gap-3 mt-3">
             <button type="button" data-action="decrement" class="min-h-12 border-2 border-warm-taupe text-dark-brown font-semibold rounded hover:bg-sand-light">− 1</button>
@@ -49,6 +54,7 @@
         </div>
       </div>
       <p class="counter-error text-red-accent text-sm mt-3 hidden" role="alert"></p>
+      <p class="counter-sync text-tree-brown text-xs mt-2" aria-live="polite">Synkroniseret</p>
     </section>
 
     <div class="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(20rem,28rem)] gap-8 items-start">

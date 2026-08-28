@@ -55,4 +55,10 @@ select {
   .container {
     @apply px-3;
   }
+
+  .counter-card button[data-action="increment"] {
+    @apply sticky bottom-3 z-10 min-h-24 shadow-xl;
+    touch-action: manipulation;
+    user-select: none;
+  }
 }
